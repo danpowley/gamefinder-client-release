@@ -1,0 +1,595 @@
+// official colours
+@Carmine: #A10005;
+@Forest: #1A401C;
+@Eggshell: #e7ddc7;
+@OldLace: #f8f5e7;
+@White: #fff;
+@Quicksilver: #999999;
+@Jet: #2f2f2f;
+@Black: #000;
+
+// unofficial colours
+@brightGreen: #090;
+@cancelRed: #900;
+@darkBlue: #009;
+@lightGrey: #ddd;
+
+.gamefinder {
+  display: flex;
+  margin-top: 10px;
+
+  .basicbox {
+    margin: 0 0 10px 0;
+
+    .content {
+      background: @OldLace;
+      overflow-y: auto;
+      padding: 7px;
+    }
+
+    .header {
+      font-size: 11pt;
+      background: @Forest;
+      color: @White;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      padding: 1px 7px;
+    }
+  }
+
+  .leftcolumn {
+    width: 250px;
+    flex-shrink: 0;
+  }
+
+  .rightcolumn {
+    margin-left: 10px;
+    flex-grow: 1;
+  }
+
+  #blackboxwrapper {
+    overflow-anchor: none;
+    min-height: 100px;
+
+    .nextdraw {
+      margin-bottom: 10px;
+    }
+
+    .teamsready {
+      margin: 10px 0;
+    }
+
+    .infonote {
+      margin-top: 10px;
+    }
+  }
+
+  .additionaloffers {
+    font-size: 9pt;
+    float: right;
+  }
+
+  #offerlistwrapper {
+    padding: 0;
+
+    .nooffers {
+      padding: 5px;
+    }
+
+    #offerlist {
+      overflow-anchor: none;
+      min-height: 80px;
+
+      .matchoffer {
+        position: relative;
+        padding: 5px;
+        margin-bottom: 5px;
+        border-bottom: solid @Jet 1px;
+
+        &:last-child {
+          border-bottom-style: none;
+        }
+
+        .timer {
+          position: absolute;
+          top: 50%;
+          margin-top: -1px;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: @brightGreen;
+        }
+
+        .icon {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          font-size: 15px;
+          border-radius: 10px;
+          width: 20px;
+          height: 20px;
+          text-align: center;
+          cursor: pointer;
+          user-select: none;
+
+          &.cancel {
+            display: none;
+            border: solid @cancelRed 2px;
+            background: @cancelRed;
+            color: @White;
+            z-index: 1;
+          }
+
+          &.external {
+            display: block;
+            border: solid @darkBlue 2px;
+            background: @darkBlue;
+            color: @White;
+          }
+
+          &.accept {
+            display: none;
+            right: 23px;
+            border: solid @brightGreen 2px;
+            background: @brightGreen;
+            color: @White;
+          }
+        }
+
+        &:hover {
+          .icon {
+            &.cancel {
+              display: block;
+            }
+
+            &.external {
+              display: none;
+            }
+
+            &.accept {
+              display: block;
+            }
+          }
+        }
+      }
+
+      .offeredteam {
+        &.home {
+          text-align: left !important;
+        }
+
+        &.away {
+          text-align: right !important;
+        }
+
+        .name {
+          font-size: 10pt;
+          font-weight: 700;
+        }
+
+        .desc {
+          font-size: 9pt;
+          font-style: oblique;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+
+  #teamswrapper {
+    padding: 0;
+
+    .lfgteam {
+      border-bottom: solid @Forest 1px;
+      height: 38px;
+      padding: 2px;
+      display: flex;
+
+      input {
+        vertical-align: middle;
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      img {
+        margin-right: 10px;
+      }
+
+      .teamname {
+        font-size: 10pt;
+      }
+
+      .teaminfo {
+        font-size: 9pt;
+        font-style: oblique;
+      }
+    }
+
+    .controls {
+      position: relative;
+      padding: 10px;
+      text-align: center;
+
+      #selectall {
+        position: absolute;
+        left: 0;
+        vertical-align: middle;
+        display: inline-block;
+      }
+    }
+  }
+
+  #overallstatus {
+    font-weight: bold;
+    font-size: 10pt;
+    margin-bottom: 4px;
+
+    .overalllinks {
+      float: right;
+
+      a {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  #teamcards {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 2px;
+
+    .teamcard {
+      width: 110px;
+      display: flex;
+      flex-wrap: wrap;
+      margin-right: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      border: solid 2px @Eggshell;
+      font-size: 9pt;
+      background-color: @OldLace;
+
+      &.active, &:hover {
+        background-color: white;
+      }
+
+      &.active {
+        border-color: @Forest !important;
+      }
+
+      &:hover {
+        border-color: @Carmine;
+      }
+
+      .cardlogo {
+        padding: 3px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        padding-right: 3px;
+        display: flex;
+        align-items: center;
+      }
+
+      .cardinfo {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+
+        .teaminfo {
+          flex-grow: 1;
+          border-top-right-radius: 5px;
+          padding: 0;
+          border-bottom: solid @Forest 1px;
+          margin: 2px 4px 0 0;
+
+          .divisionletter {
+            float: right;
+          }
+        }
+
+        .opponentinfo {
+          flex-grow: 1;
+          border-bottom-right-radius: 5px;
+          margin: 2px 4px 1px 0;
+
+          .allowedopponents {
+            float: right;
+            min-width: 15px;
+            text-align: right;
+
+            .newopponentsicon {
+              display: inline-block;
+              color: lighten(@Forest, 20%);
+              font-size: 9pt;
+              padding-right: 1px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  #selectedownteam {
+    margin-top: 4px;
+    display: flex;
+    padding: 6px;
+    background-color: @OldLace;
+    min-height: 50px;
+
+    .logo {
+      padding: 4px 4px 2px 0px;
+    }
+
+    .teamdetails {
+      flex-grow: 1;
+
+      .teamname {
+        font-size: 11pt;
+      }
+
+      .teaminfo {
+        font-style: oblique;
+        font-size: 9pt;
+      }
+    }
+
+    .teamextras {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      .divisionleagueinfo {
+        text-align: right;
+        font-size: 8pt;
+        font-style: oblique;
+      }
+
+      .teamlinks {
+        display: flex;
+        column-gap: 10px;
+      }
+    }
+  }
+
+  #opponentslist {
+    margin-top: 6px;
+    background-color: @OldLace;
+    padding: 6px;
+    min-height: 600px;
+
+    .frozentag {
+      background-color: @Quicksilver;
+      color: white;
+      font-size: 8pt;
+      padding: 3px 4px 2px 4px;
+      border-radius: 3px;
+    }
+
+    .expandcollapseall {
+      float: right;
+
+      a {
+        margin-left: 10px;
+      }
+    }
+
+    .coach {
+      line-height: 1.5em;
+      font-size: 10pt;
+
+      a.disclosure {
+        display: inline-block;
+        height: 1em;
+        text-align: center;
+        text-decoration: none;
+
+        .showhideicon {
+          color: @Black;
+          min-width: 14px;
+          display: inline-block;
+        }
+      }
+
+      .teamcount {
+        color: @Jet;
+        padding: 1px 1px 1px 1px;
+        font-size: 8pt;
+        min-width: 15px;
+        display: inline-block;
+        line-height: 1em;
+        margin-top: 3px;
+        border-radius: 3px;
+        border: solid @Quicksilver 1px;
+      }
+
+      .ranking {
+        font-style: oblique;
+        font-size: 10pt;
+      }
+
+      a.hidecoach {
+        color: @Quicksilver;
+      }
+    }
+
+    .team {
+      margin-left: 1em;
+      display: flex;
+      border: solid @OldLace 1px;
+
+      .logo {
+        margin: 2px 5px 2px 4px;
+
+        img {
+          width: 28px;
+          height: auto;
+        }
+      }
+
+      .details {
+        flex-grow: 1;
+
+        .name {
+          font-size: 11pt;
+        }
+
+        .info {
+          font-style: oblique;
+
+          .offeredtag {
+            display: inline-block;
+            margin-top: 2px;
+            padding: 0 4px 1px 2px;
+            background-color: @Jet;
+            color: white;
+            font-size: 7pt;
+          }
+        }
+      }
+
+      &:hover {
+        background: @White;
+        border: solid @Forest 1px;
+      }
+
+      .links {
+        display: none;
+
+        a:link {
+          text-decoration: none;
+        }
+      }
+
+      &:hover .links {
+        flex-shrink: 1;
+        display: flex;
+        align-items: center;
+        column-gap: 15px;
+        font-size: 12pt;
+        margin: 0 10px 0 0;
+      }
+
+      .faded {
+        opacity: 0.2;
+      }
+    }
+  }
+
+  .mixin_modalouter {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .mixin_modalinner {
+    position: relative;
+    background-color: @OldLace;
+    border: solid 2px @Forest;
+    padding: 10px;
+    margin: auto;
+    width: 750px;
+    max-height: 90%;
+    overflow: auto;
+    border-radius: 5px;
+
+    .closemodal {
+      position: absolute;
+      top: 2px;
+      right: 10px;
+      color: @Quicksilver;
+      font-weight: 700;
+      font-size: 20pt;
+
+      &:hover {
+        color: @Jet;
+        text-decoration: none;
+      }
+    }
+  }
+
+  .rosterouter {
+    .mixin_modalouter();
+    .rosterinner {
+      .mixin_modalinner();
+      table {
+        border-top: solid 1px @Forest;
+        padding: 0;
+        margin: 0;
+
+        td {
+          padding: 0 5px;
+          margin: 0;
+          border-top: solid 1px @lightGrey;
+
+          &.position {
+            white-space: nowrap;
+            width: 30%;
+          }
+
+          &.injuries {
+            width: 10%;
+          }
+        }
+      }
+
+      .rosterinfo {
+        font-weight: 700;
+      }
+
+      .teaminfo {
+        font-style: oblique;
+      }
+    }
+  }
+
+  .settingstitle {
+    font-size: 12pt;
+    border-bottom: solid @Jet 1px;
+    margin-bottom: 10px;
+  }
+
+  .settingssection {
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    border-bottom: solid @Quicksilver 1px;
+  }
+
+  .settingsouter {
+    .mixin_modalouter();
+    .settingsinner {
+      .mixin_modalinner();
+
+
+    }
+  }
+
+  .teamsettingsouter {
+    .mixin_modalouter();
+    .teamsettingsinner {
+      .mixin_modalinner();
+    }
+  }
+
+  .muted {
+    color: @Quicksilver;
+  }
+
+  .fadeout {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.3s, opacity 0.3s linear;
+  }
+}
