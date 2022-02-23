@@ -11,14 +11,14 @@
             <div class="teamextras">
                 <div class="divisionleagueinfo">{{ team.division }}</div>
                 <div class="teamlinks">
-                    <a href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Settings</a>
+                    <a v-show="teamSettingsEnabled" href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Settings</a>
                     <a href="#" @click.prevent="deselectTeam">Deselect</a>
                 </div>
             </div>
         </template>
         <template v-else>
             <div>
-                <strong>No team selected.</strong> To make an offer, select one of your teams above and the list of opponents will be filtered to match that team.
+                <strong>No team selected.</strong> Click a team above to filter opponents to match that team. When no team is selected, all opponents on Gamefinder are listed below, click on an opponent team to see their details and send offers.
             </div>
         </template>
     </div>
@@ -36,6 +36,10 @@ import GameFinderHelpers from '../include/GameFinderHelpers';
             validator: function (team) {
                 return typeof team === 'object' || team === null;
             }
+        },
+        teamSettingsEnabled: {
+            type: Boolean,
+            required: true
         }
     }
 })
@@ -48,7 +52,7 @@ export default class SelectedOwnTeamComponent extends Vue {
         this.$emit('open-modal', name, modalSettings);
     }
 
-    public abbreviate(stringValue: string, maxCharacters: number) {
+    public abbreviate(stringValue: string, maxCharacters: number): string {
         return Util.abbreviate(stringValue, maxCharacters);
     }
 

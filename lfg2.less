@@ -369,6 +369,10 @@
       border-radius: 3px;
     }
 
+    .hiddencoachcount {
+      margin-left: 15px;
+    }
+
     .expandcollapseall {
       float: right;
 
@@ -421,6 +425,11 @@
       display: flex;
       border: solid @OldLace 1px;
 
+      &.wholeteamclickable {
+        cursor: pointer;
+        user-select: none;
+      }
+
       .logo {
         margin: 2px 5px 2px 4px;
 
@@ -435,25 +444,47 @@
 
         .name {
           font-size: 11pt;
+
+          .nameoffhover {
+            display: inline;
+          }
+
+          .nameonhover {
+            display: none;
+          }
         }
 
         .info {
           font-style: oblique;
-
-          .offeredtag {
-            display: inline-block;
-            margin-top: 2px;
-            padding: 0 4px 1px 2px;
-            background-color: @Jet;
-            color: white;
-            font-size: 7pt;
-          }
         }
       }
 
       &:hover {
         background: @White;
         border: solid @Forest 1px;
+
+        .details {
+          .name {
+            .nameoffhover {
+              display: none;
+            }
+
+            .nameonhover {
+              display: inline;
+            }
+          }
+        }
+
+        .selectedownteam {
+          width: 200px;
+          display: flex;
+
+          .details {
+            flex-grow: 1;
+          }
+        }
+
+
       }
 
       .links {
@@ -468,13 +499,25 @@
         flex-shrink: 1;
         display: flex;
         align-items: center;
-        column-gap: 15px;
-        font-size: 12pt;
+        font-size: 10pt;
         margin: 0 10px 0 0;
       }
 
       .faded {
         opacity: 0.2;
+      }
+
+      .selectedownteam {
+        display: none;
+
+        .details {
+          .name {
+            text-align: right;
+          }
+          .info {
+            text-align: right;
+          }
+        }
       }
     }
   }
@@ -524,33 +567,91 @@
     .mixin_modalouter();
     .rosterinner {
       .mixin_modalinner();
-      table {
-        border-top: solid 1px @Forest;
-        padding: 0;
-        margin: 0;
+      display: flex;
+      column-gap: 20px;
+      .displayteam {
+        flex-grow: 1;
 
-        td {
-          padding: 0 5px;
-          margin: 0;
-          border-top: solid 1px @lightGrey;
+        .displayteamheader {
+          display: flex;
+          column-gap: 10px;
 
-          &.position {
-            white-space: nowrap;
-            width: 30%;
+          .logo {
+            flex-shrink: 1;
           }
 
-          &.injuries {
-            width: 10%;
+          .details {
+            flex-grow: 1;
+
+            .name {
+              font-size: 12pt;
+            }
+            .info {
+              font-style: oblique;
+            }
+          }
+        }
+
+        table {
+          border-top: solid 1px @Forest;
+          padding: 0;
+          margin: 0;
+
+          td {
+            padding: 0 5px;
+            margin: 0;
+            border-top: solid 1px @lightGrey;
+
+            &.position {
+              white-space: nowrap;
+              width: 100px;
+            }
+
+            &.injuries {
+              width: 70px;
+            }
           }
         }
       }
 
-      .rosterinfo {
-        font-weight: 700;
-      }
+      .rosteroffers {
+        width: 250px;
+        flex-shrink: 0;
 
-      .teaminfo {
-        font-style: oblique;
+        .title {
+          font-size: 12pt;
+          font-weight: 700;
+        }
+
+        .rosterofferteam {
+          display: flex;
+          column-gap: 5px;
+          cursor: pointer;
+          user-select: none;
+          padding: 5px;
+          margin-bottom: 5px;
+
+          &.recentoffersent {
+            background-color: @lightGrey;
+            cursor: default;
+            &:hover {
+              background-color: @lightGrey;
+            }
+          }
+
+          .details {
+            .name {
+
+            }
+            .info {
+              font-style: oblique;
+            }
+          }
+
+          &:hover {
+            background-color: white;
+          }
+        }
       }
     }
   }
@@ -591,5 +692,14 @@
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s 0.3s, opacity 0.3s linear;
+  }
+
+  .offeredtag {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 0 4px 1px 2px;
+    background-color: @Jet;
+    color: white;
+    font-size: 7pt;
   }
 }

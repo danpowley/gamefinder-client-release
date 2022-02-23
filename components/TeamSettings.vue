@@ -37,7 +37,7 @@ export default class TeamSettingsComponent extends Vue {
         this.$emit('close-modal');
     }
 
-    public abbreviate(stringValue: string, maxCharacters: number) {
+    public abbreviate(stringValue: string, maxCharacters: number): string {
         return Util.abbreviate(stringValue, maxCharacters);
     }
 }

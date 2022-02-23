@@ -19,7 +19,7 @@
 
         <div class="rightcolumn">
             <div id="overallstatus">
-                {{ coachName }}: You have {{ me.teams.length }} team{{ me.teams.length === 1 ? '' : 's' }} looking for a game.
+                You have {{ me.teams.length }} team{{ me.teams.length === 1 ? '' : 's' }} looking for a game.
                 <div class="overalllinks"><a href="#" @click.prevent="showTeams">Choose teams</a> <a href="#" @click.prevent="openModal('SETTINGS', {})">Settings</a></div>
             </div>
 
@@ -36,6 +36,7 @@
             <selectedownteam
                 v-show="display === 'LFG'"
                 :team="selectedOwnTeam"
+                :teamSettingsEnabled="featureFlags.teamSettings"
                 @deselect-team="deselectTeam"
                 @open-modal="openModal"></selectedownteam>
 
@@ -57,7 +58,7 @@
 
         <roster
             :is-dev-mode="isDevMode"
-            :team="modalRosterTeam"
+            :settings="modalRosterSettings"
             @close-modal="closeModal"></roster>
 
         <settings
@@ -66,7 +67,7 @@
             @unhide-coach="handleUnhideCoach"
             @close-modal="closeModal"></settings>
 
-        <teamsettings :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
+        <teamsettings v-if="featureFlags.teamSettings" :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
     </div>
 </template>
 
@@ -106,7 +107,7 @@ export default class GameFinder extends Vue {
 
     public coachName: string | null = null;
     public display: 'LFG' | 'TEAMS' | 'NONE' = 'LFG';
-    public featureFlags = {blackbox: true};
+    public featureFlags = {blackbox: true, teamSettings: false};
 
     public selectedOwnTeam:any = null;
     public me:any = { teams: [] };
@@ -120,7 +121,7 @@ export default class GameFinder extends Vue {
 
     public blackboxData: {available: number, chosen: number} = {available: 0, chosen: 0};
 
-    public modalRosterTeam: any | null = null;
+    public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
     public modalTeamSettingsTeam: any | null = null;
     public modalSettingsShow: boolean = false;
 
@@ -390,7 +391,7 @@ export default class GameFinder extends Vue {
     public openModal(modalName: string, modalSettings: any) {
         this.closeModal();
         if (modalName === 'ROSTER') {
-            this.modalRosterTeam = modalSettings.team;
+            this.modalRosterSettings = this.getModalRosterSettings(modalSettings.team);
         } else if (modalName === 'TEAM_SETTINGS') {
             this.modalTeamSettingsTeam = modalSettings.team;
         } else if (modalName === 'SETTINGS') {
@@ -398,8 +399,44 @@ export default class GameFinder extends Vue {
         }
     }
 
+    private getModalRosterSettings(rosterTeam: any): {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} {
+        let isMyTeam = false;
+        for (const myTeam of this.me.teams) {
+            if (myTeam.id === rosterTeam.id) {
+                isMyTeam = true;
+            }
+        }
+
+        const ownTeamsOfferable = [];
+
+        if (! isMyTeam) {
+            for (const myTeam of this.me.teams) {
+                const isAllowed = myTeam.allow.includes(rosterTeam.id);
+                const offerExists = this.offerExists(myTeam.id, rosterTeam.id);
+                if (isAllowed && ! offerExists) {
+                    ownTeamsOfferable.push(myTeam);
+                }
+            }
+        }
+
+        return {
+            isMyTeam: isMyTeam,
+            displayTeam: rosterTeam,
+            ownTeamsOfferable: ownTeamsOfferable
+        };
+    }
+
+    private offerExists(myTeamId, opponentTeamId): boolean {
+        for (const offer of this.offers) {
+            if (offer.home.id === myTeamId && offer.away.id === opponentTeamId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public closeModal() {
-        this.modalRosterTeam = null;
+        this.modalRosterSettings = null;
         this.modalTeamSettingsTeam = null;
         this.modalSettingsShow = false;
     }

@@ -4,7 +4,7 @@
         <div class="content" id="offerlistwrapper" @mouseenter="setUiUpdatesPaused(true)" @mouseleave="setUiUpdatesPaused(false)">
             <div v-show="offers.length === 0" class="nooffers">Sorry, no current offers.</div>
             <div id="offerlist">
-                <div v-for="offer in offers" :key="offer.id" class="matchoffer">
+                <div v-for="offer in offers" :key="offer.id" class="matchoffer" :class="{fadeout: fadeOutId === offer.id}">
                     <div class="icon external" v-show="offer.external">?</div>
                     <div class="icon accept" v-show="offer.external">&#x2714;</div>
                     <div class="icon cancel" @click.prevent="cancelOffer(offer)">&#x2718;</div>
@@ -70,6 +70,8 @@ export default class OffersComponent extends Vue {
     private uiUpdatesPaused: boolean = false;
 
     private cancelledOfferIds:number[] = [];
+
+    public fadeOutId: number | null = null;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -238,8 +240,6 @@ export default class OffersComponent extends Vue {
     }
 
     public cancelOffer(offer: any): void {
-        this.cancelledOfferIds.push(offer.id);
-
         if (offer.external) {
             // we need to use the team from myTeams as this holds the hiddenMatches data
             const myTeam = this.getMyTeam(offer.home.id);
@@ -247,21 +247,51 @@ export default class OffersComponent extends Vue {
                 return;
             }
 
-            this.$emit('hide-match', myTeam, offer.away.id);
+            this.applyFade(
+                () => {
+                    this.cancelledOfferIds.push(offer.id);
+                    this.$emit('hide-match', myTeam, offer.away.id)
+                },
+                offer.id,
+                500
+            );
         } else {
-            let index = this.$props.offers.findIndex((o) => o.id === offer.id);
-            if (index !== -1) {
-                this.$props.offers.splice(index, 1);
-            }
-            this.backendApi.cancelOffer(offer.id);
+            this.applyFade(
+                () => {
+                    this.cancelledOfferIds.push(offer.id);
+                    let index = this.$props.offers.findIndex((o) => o.id === offer.id);
+                    if (index !== -1) {
+                        this.$props.offers.splice(index, 1);
+                    }
+                    this.backendApi.cancelOffer(offer.id)
+                },
+                offer.id,
+                500
+            );
         }
+    }
+
+    private applyFade(workload: Function, offerId: number, waitTime: number) {
+        // set the fadeOutId so that the fade transition class is added to the element
+        this.fadeOutId = offerId;
+
+        // allow the transition to happen before other events cause the item to disappear fully.
+        setTimeout(() => {
+            // run the real workload
+            workload();
+
+            // clear the fadeOutId
+            if (this.fadeOutId === offerId) {
+                this.fadeOutId = null;
+            }
+        }, waitTime);
     }
 
     public setUiUpdatesPaused(isPaused: boolean) {
         this.uiUpdatesPaused = isPaused;
     }
 
-    public abbreviate(stringValue: string, maxCharacters: number) {
+    public abbreviate(stringValue: string, maxCharacters: number): string {
         return Util.abbreviate(stringValue, maxCharacters);
     }
 }

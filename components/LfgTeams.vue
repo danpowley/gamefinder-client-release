@@ -142,7 +142,7 @@ export default class LfgTeamsComponent extends Vue {
         }
     }
 
-    public abbreviate(stringValue: string, maxCharacters: number) {
+    public abbreviate(stringValue: string, maxCharacters: number): string {
         return Util.abbreviate(stringValue, maxCharacters);
     }
 
