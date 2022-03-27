@@ -8,7 +8,7 @@ export default class FumbblApi implements IBackendApi {
 
     public async activeTeams(): Promise<any[]> {
         const result = await Axios.post('/api/gamefinder/coachteams');
-        return result.data.teams;
+        return result.data;
     }
 
     public async allTeams(coachName: string): Promise<any[]> {
