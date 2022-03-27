@@ -18,6 +18,9 @@
                             <div class="desc">
                                 TV {{ startDialogOffer.home.tv }} {{ startDialogOffer.home.roster.name }}
                             </div>
+                            <div v-show="startDialogOffer.home.started">
+                                <strong>Coach has clicked start game.</strong>
+                            </div>
                         </div>
                         <div class="awaydetails">
                             <div class="name">
@@ -29,6 +32,9 @@
                             <div class="desc">
                                 {{ startDialogOffer.away.roster.name }} TV {{ startDialogOffer.away.tv }}
                             </div>
+                            <div v-show="startDialogOffer.away.started">
+                                <strong>Coach has clicked start game.</strong>
+                            </div>
                         </div>
                     </div>
                     <div class="awayicon">
@@ -39,7 +45,7 @@
                 <div class="actions">
                     <div class="centrebuttons">
                         <button @click.prevent="declineGame">Decline</button>
-                        <button @click.prevent="startGame">Start game</button>
+                        <button @click.prevent="startGame" :disabled="startDialogOffer.home.started">Start game</button>
                     </div>
                 </div>
             </div>
