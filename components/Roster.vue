@@ -5,16 +5,15 @@
             <div class="displayteam">
                 <div class="displayteamheader">
                     <div class="logo">
-                        <img :src="getTeamLogoUrl(rosterData)" />
+                        <img :src="getTeamLogoUrl(settings.displayTeam)" />
                     </div>
                     <div class="details">
                         <div class="name">
                             <!-- @christer absolute url used multiple times -->
-                            <a :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="rosterData.name">{{ abbreviate(rosterData.name, 30) }}</a> (<a :href="'https://fumbbl.com/~' + rosterData.coach" target="_blank" :title="rosterData.coach">{{ abbreviate(rosterData.coach, 10) }}</a>)
+                            <a :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="'Open team page for ' + rosterData.name + ' in a new tab.'">{{ abbreviate(rosterData.name, 30) }}</a> (<a :href="'https://fumbbl.com/~' + rosterData.coach.name" target="_blank" :title="'Open coach page for ' + rosterData.coach.name + ' in a new tab'">{{ abbreviate(rosterData.coach.name, 10) }}</a>)
                         </div>
                         <div class="info">
-                            <!-- @christer new properties used that won't exist yet in main API (currentSeason, gamesPlayedInSeason) -->
-                            <span title="Team Value">{{ rosterData.teamValue/1000 }}k</span> {{ rosterData.race }}, <span title="Number of rerolls">{{ rosterData.rerolls }} RR</span>, <span title="Dedicated fans.">{{rosterData.fanFactor}} DF</span>, <span title="Treasury available">{{ rosterData.treasury/1000 }}k gold</span>, <span title="Seasons and games played.">S{{ rosterData.currentSeason }}:G{{ rosterData.gamesPlayedInSeason }}</span>, <span title="Team record: win/tie/loss">{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
+                            <span title="Team Value">{{ rosterData.teamValue/1000 }}k</span> {{ rosterData.roster.name }}, <span title="Number of rerolls">{{ rosterData.rerolls }} RR</span>, <span title="Dedicated fans.">{{rosterData.fanFactor}} DF</span>, <span title="Treasury available">{{ rosterData.treasury/1000 }}k gold</span>, <span title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>, <span title="Team record: win/tie/loss">{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
                         </div>
                     </div>
                 </div>

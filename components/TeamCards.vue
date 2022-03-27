@@ -2,11 +2,11 @@
     <div id="teamcards">
         <div v-for="myTeam in myTeams" :key="myTeam.id" @click="select(myTeam)"
             class="teamcard" :class="{active: myTeam.selected}"
-            :title="myTeam.name + '\\n' + myTeam.race + '\\n' + myTeam.division + (myTeam.league.name !== undefined ? ' (' + myTeam.league.name + ')' : '')">
+            :title="myTeam.name + '\n' + myTeam.roster.name + '\n' + myTeam.division + (myTeam.league !== null && myTeam.league.name ? ' (' + myTeam.league.name + ')' : '')">
             <div class="cardlogo"><img :src="getTeamLogoUrl(myTeam)"></div>
             <div class="cardinfo">
                 <div class="teaminfo">
-                    <div class="divisionletter">[{{ myTeam.division.charAt(0) }}{{ myTeam.league.name ? '*' : '' }}]</div>{{
+                    <div class="divisionletter">[{{ myTeam.division.charAt(0) }}{{ myTeam.league !== null && myTeam.league.name ? '*' : '' }}]</div>{{
                     myTeam.teamValue/1000 }}k
                 </div>
                 <div class="opponentinfo">

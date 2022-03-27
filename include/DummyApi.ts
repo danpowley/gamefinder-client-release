@@ -8,22 +8,18 @@ export default class DummyApi implements IBackendApi {
         return this.dummyApiDomain + endPoint;
     }
 
-    public async addCheatingCoach(cheatingCoachName: string): Promise<void> {
-        await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/addcheatingcoach'), {cheatingCoachName: cheatingCoachName});
-    }
-
     public async activate(): Promise<void> {
         await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/activate'))
     };
 
-    public async activeTeams(cheatingCoachName: string): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/coachteams'), {cheatingCoachName: cheatingCoachName});
+    public async activeTeams(): Promise<any[]> {
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/coachteams'));
         return result.data.teams;
     }
 
     public async allTeams(coachName: string): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/coach/teams/' + coachName));
-        return result.data.teams;
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/canlfg/' + coachName));
+        return result.data;
     }
 
     public async rosterData(teamId: number): Promise<any> {
@@ -31,12 +27,12 @@ export default class DummyApi implements IBackendApi {
         return result.data;
     }
 
-    public addAllTeams(cheatingCoachName: string): void {
-        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/addallteams'), {cheatingCoachName: cheatingCoachName});
+    public addAllTeams(): void {
+        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/addallteams'));
     }
 
-    public removeAllTeams(cheatingCoachName: string): void {
-        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/removeallteams'), {cheatingCoachName: cheatingCoachName});
+    public removeAllTeams(): void {
+        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/removeallteams'));
     }
 
     public addTeam(id: number): void {
@@ -47,8 +43,8 @@ export default class DummyApi implements IBackendApi {
         Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/removeteam/' + id));
     }
 
-    public async getOffers(cheatingCoachName: string): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/getoffers'), {cheatingCoachName: cheatingCoachName});
+    public async getOffers(): Promise<any[]> {
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/getoffers'));
         return result.data;
     }
 
@@ -56,9 +52,13 @@ export default class DummyApi implements IBackendApi {
         await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/offer/' + myTeamId + '/' + opponentTeamId));
     }
 
-    public cancelOffer(id: number): void {
-        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/canceloffer/' + id));
+    public cancelOffer(myTeamId: number, opponentTeamId: number): void {
+        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/canceloffer/' + myTeamId + '/' + opponentTeamId));
     }
+
+    public startGame(myTeamId: number, opponentTeamId: number): void {
+        Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/startgame/' + myTeamId + '/' + opponentTeamId));
+    };
 
     public async teamsAsOpponents(): Promise<any[]> {
         const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/teams'));

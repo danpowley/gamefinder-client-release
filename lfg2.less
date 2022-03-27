@@ -15,8 +15,73 @@
 @lightGrey: #ddd;
 
 .gamefinder {
-  display: flex;
-  margin-top: 10px;
+
+  .startdialog {
+    width: 600px;
+    &.basicbox {
+      margin: 20px auto 0 auto;
+    }
+    .header {
+      text-align: center;
+    }
+    .teams {
+      margin-bottom: 10px;
+      display: flex;
+      .homeicon {
+        width: 64px;
+      }
+      .details {
+        flex-grow: 1;
+        display: flex;
+        .homedetails {
+          padding-left: 10px;
+          width: 50%;
+        }
+        .awaydetails {
+          padding-right: 10px;
+          width: 50%;
+          text-align: right;
+        }
+      }
+      .awayicon {
+        width: 64px;
+      }
+      .name {
+        font-size: 14pt;
+      }
+    }
+    .timer {
+      position: relative;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: @brightGreen;
+      transition: width 1s;
+      transition-timing-function: linear;
+    }
+    .actions {
+      padding-top: 20px;
+      button {
+        margin: 0 10px;
+        width: 150px;
+        text-align: center;
+      }
+      .centrebuttons {
+        width: 345px;
+        margin: auto;
+      }
+    }
+  }
+
+  .launchgame {
+    width: 600px;
+    &.basicbox {
+      margin: 20px auto 0 auto;
+    }
+    .header {
+      text-align: center;
+    }
+  }
 
   .basicbox {
     margin: 0 0 10px 0;
@@ -37,14 +102,19 @@
     }
   }
 
-  .leftcolumn {
-    width: 250px;
-    flex-shrink: 0;
-  }
+  .gamefindercolumns {
+    display: flex;
+    margin-top: 10px;
 
-  .rightcolumn {
-    margin-left: 10px;
-    flex-grow: 1;
+    .leftcolumn {
+      width: 250px;
+      flex-shrink: 0;
+    }
+
+    .rightcolumn {
+      margin-left: 10px;
+      flex-grow: 1;
+    }
   }
 
   #blackboxwrapper {
@@ -167,7 +237,7 @@
           font-weight: 700;
         }
 
-        .desc {
+        .desc, .coach {
           font-size: 9pt;
           font-style: oblique;
           font-weight: 400;

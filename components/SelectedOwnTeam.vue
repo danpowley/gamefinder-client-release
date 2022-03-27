@@ -6,7 +6,7 @@
             </div>
             <div class="teamdetails">
                 <div class="teamname"><a href="#" @click.prevent="openModal('ROSTER', {team: team})">{{ abbreviate(team.name, 65) }}</a></div>
-                <div class="teaminfo"><span title="Seasons and games played">S{{ team.currentSeason }}:G{{ team.gamesPlayedInSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.race }}</div>
+                <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
             </div>
             <div class="teamextras">
                 <div class="divisionleagueinfo">{{ team.division }}</div>

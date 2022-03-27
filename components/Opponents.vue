@@ -35,8 +35,7 @@
                         </div>
                         <div class="info">
                             <span v-show="isOfferedBySelectedOwnTeam(oppTeam)" class="offeredtag">Offered</span>
-                            <!-- @christer, I've made up some values here oppTeam.currentSeason and oppTeam.gamesPlayedInSeason -->
-                            <span title="Seasons and games played">S{{ oppTeam.currentSeason }}:G{{ oppTeam.gamesPlayedInSeason }}</span> {{ oppTeam.teamValue / 1000 }}k {{ oppTeam.race }}
+                            <span title="Seasons and games played">S{{ oppTeam.seasonInfo.currentSeason }}:G{{ oppTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span> {{ oppTeam.teamValue / 1000 }}k {{ oppTeam.roster.name }}
                         </div>
                     </div>
                     <div class="links">
@@ -58,7 +57,7 @@
                                 {{ abbreviate(selectedOwnTeam.name, 20) }}
                             </div>
                             <div class="info">
-                                {{ selectedOwnTeam.race }} {{ selectedOwnTeam.teamValue / 1000 }}k
+                                {{ selectedOwnTeam.roster.name }} {{ selectedOwnTeam.teamValue / 1000 }}k
                             </div>
                         </div>
                         <div class="logo">

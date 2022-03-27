@@ -1,6 +1,56 @@
 <template>
     <div class="gamefinder">
-
+        <div class="startdialog basicbox" v-if="startDialogOffer !== null">
+            <div class="header">Game offered</div>
+            <div class="content">
+                <div class="teams">
+                    <div class="homeicon">
+                        <img :src="getLargeTeamLogoUrl(startDialogOffer.home)" />
+                    </div>
+                    <div class="details">
+                        <div class="homedetails">
+                            <div class="name">
+                                {{ abbreviate(startDialogOffer.home.team, 30) }}
+                            </div>
+                            <div class="coach">
+                                {{ startDialogOffer.home.coach.name }} ({{ startDialogOffer.home.coach.rating }})
+                            </div>
+                            <div class="desc">
+                                TV {{ startDialogOffer.home.tv }} {{ startDialogOffer.home.roster.name }}
+                            </div>
+                        </div>
+                        <div class="awaydetails">
+                            <div class="name">
+                                {{ abbreviate(startDialogOffer.away.team, 30) }}
+                            </div>
+                            <div class="coach">
+                                {{ startDialogOffer.away.coach.name }} ({{ startDialogOffer.away.coach.rating }})
+                            </div>
+                            <div class="desc">
+                                {{ startDialogOffer.away.roster.name }} TV {{ startDialogOffer.away.tv }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="awayicon">
+                        <img :src="getLargeTeamLogoUrl(startDialogOffer.away)" />
+                    </div>
+                </div>
+                <div class="timer" :style="{ width: (100 * (startDialogOffer.timeRemaining) / startDialogOffer.lifetime) + '%'}"></div>
+                <div class="actions">
+                    <div class="centrebuttons">
+                        <button @click.prevent="declineGame">Decline</button>
+                        <button @click.prevent="startGame">Start game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="launchgame basicbox" v-if="launchGameOffer !== null">
+            <div class="header">Game launched</div>
+            <div class="content">
+                Good luck, your download should start automatically (but it won't just yet, we're just testing).
+            </div>
+        </div>
+        <div class="gamefindercolumns" v-if="launchGameOffer === null" v-show="startDialogOffer === null">
         <div class="leftcolumn">
             <blackbox
                 v-if="featureFlags.blackbox"
@@ -14,7 +64,9 @@
                 :coach-name="coachName"
                 :my-teams="me.teams"
                 :hidden-coaches="hiddenCoaches"
-                @hide-match="handleHideMatch"></offers>
+                @hide-match="handleHideMatch"
+                @show-dialog="handleShowDialog"
+                @launch-game="handleLaunchGame"></offers>
         </div>
 
         <div class="rightcolumn">
@@ -68,6 +120,7 @@
             @close-modal="closeModal"></settings>
 
         <teamsettings v-if="featureFlags.teamSettings" :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
+        </div>
     </div>
 </template>
 
@@ -107,7 +160,10 @@ export default class GameFinder extends Vue {
 
     public coachName: string | null = null;
     public display: 'LFG' | 'TEAMS' | 'NONE' = 'LFG';
-    public featureFlags = {blackbox: true, teamSettings: false};
+    public featureFlags = {blackbox: false, teamSettings: false};
+
+    public startDialogOffer:any = null;
+    public launchGameOffer:any = null;
 
     public selectedOwnTeam:any = null;
     public me:any = { teams: [] };
@@ -132,7 +188,6 @@ export default class GameFinder extends Vue {
         this.coachName = appElement.getAttribute("coach");
         this.isDevMode = appElement.hasAttribute("dev-mode-on");
         this.backendApi = GameFinderHelpers.getBackendApi(this.isDevMode);
-        await this.backendApi.addCheatingCoach(this.coachName);
     }
 
     async mounted() {
@@ -144,8 +199,8 @@ export default class GameFinder extends Vue {
     }
 
     public async activate() {
-        this.backendApi.activate();
-        const teams = await this.backendApi.activeTeams(this.coachName);
+        await this.backendApi.activate();
+        const teams = await this.backendApi.activeTeams();
         const activeTeams = teams;
 
         Util.applyDeepDefaults(activeTeams, [{
@@ -348,6 +403,7 @@ export default class GameFinder extends Vue {
     }
 
     public handleHideMatch(myTeam: any, opponentTeamId: number): void {
+        this.backendApi.cancelOffer(myTeam.id, opponentTeamId);
         myTeam.hiddenMatches.push({opponentTeamId: opponentTeamId, hiddenDate: Date.now()});
         this.refreshOwnTeamsAllowedSettings();
         this.refreshOpponentVisibility();
@@ -366,6 +422,42 @@ export default class GameFinder extends Vue {
         this.hiddenCoaches.splice(this.getHiddenCoachIndex(id), 1);
         this.refreshOwnTeamsAllowedSettings();
         this.refreshOpponentVisibility();
+    }
+
+    public handleShowDialog(startDialogOffer: any | null): void {
+        this.startDialogOffer = startDialogOffer;
+    }
+
+    public handleLaunchGame(launchGameOffer: any | null): void {
+        // launchGameOffer cannot go back to null.
+        if (launchGameOffer !== null) {
+            this.launchGameOffer = launchGameOffer;
+        }
+    }
+
+    private getMyTeam(myTeamId: number): any | null {
+        for (const myTeam of this.me.teams) {
+            if (myTeam.id === myTeamId) {
+                return myTeam;
+            }
+        }
+        return null;
+    }
+
+    public declineGame()
+    {
+        if (this.startDialogOffer === null) {
+            return;
+        }
+        this.handleHideMatch(this.getMyTeam(this.startDialogOffer.home.id), this.startDialogOffer.away.id);
+    }
+
+    public startGame()
+    {
+        if (this.startDialogOffer === null) {
+            return;
+        }
+        this.backendApi.startGame(this.startDialogOffer.home.id, this.startDialogOffer.away.id);
     }
 
     private getHiddenCoachIndex(id: number): number {
@@ -447,6 +539,14 @@ export default class GameFinder extends Vue {
 
     public setOpponentsRefreshed() {
         this.opponentsRefreshRequired = false;
+    }
+
+    public abbreviate(stringValue: string, maxCharacters: number): string {
+        return Util.abbreviate(stringValue, maxCharacters);
+    }
+
+    public getLargeTeamLogoUrl(team: any): string {
+        return GameFinderHelpers.getTeamLogoUrl(team, false);
     }
 }
 </script>

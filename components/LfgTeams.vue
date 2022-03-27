@@ -8,7 +8,7 @@
                     <img :src="getTeamLogoUrl(team)" />
                     <div>
                         <div class="teamname">{{ abbreviate(team.name, 70) }}</div>
-                        <div class="teaminfo"><span title="Seasons and games played">S{{ team.currentSeason }}:G{{ team.gamesPlayedInSeason }}</span> TV{{ team.teamValue/1000 }}k {{ team.race }}</div>
+                        <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@ export default class LfgTeamsComponent extends Vue {
     }
 
     private async reloadTeams() {
-        const teams = await this.getTeamsCanLfg();
+        const teams = await this.backendApi.allTeams(this.$props.coachName);
         teams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
         this.teams = teams;
 
@@ -68,14 +68,8 @@ export default class LfgTeamsComponent extends Vue {
         this.updateAllChecked();
     }
 
-    private async getTeamsCanLfg() {
-        const allTeams = await this.backendApi.allTeams(this.$props.coachName);
-        const teams = allTeams.filter(GameFinderPolicies.teamCanLfg);
-        return teams;
-    }
-
     private async updateBlackboxData() {
-        const teams = await this.getTeamsCanLfg();
+        const teams = await this.backendApi.allTeams(this.$props.coachName);
         const availableTeams = teams.filter(GameFinderPolicies.teamIsCompetitiveDivision);
         const chosenTeams = availableTeams.filter(GameFinderPolicies.teamIsLfg);
 
@@ -89,9 +83,9 @@ export default class LfgTeamsComponent extends Vue {
         const checked = event.target.checked;
 
         if (checked) {
-            this.backendApi.addAllTeams(this.$props.coachName);
+            this.backendApi.addAllTeams();
         } else {
-            this.backendApi.removeAllTeams(this.$props.coachName);
+            this.backendApi.removeAllTeams();
         }
 
         const checkboxes = document.getElementsByClassName('teamcheck');
