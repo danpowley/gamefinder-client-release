@@ -237,6 +237,7 @@ export default class OffersComponent extends Vue {
                 coach: offerData.team1.coach,
                 roster: offerData.team1.roster,
                 tv: (offerData.team1.teamValue / 1000) + 'k',
+                started: offerData.coachNamesStarted.includes(offerData.team1.coach.name),
             },
             away: {
                 id: offerData.team2.id,
@@ -244,6 +245,7 @@ export default class OffersComponent extends Vue {
                 coach: offerData.team2.coach,
                 roster: offerData.team2.roster,
                 tv: (offerData.team2.teamValue / 1000) + 'k',
+                started: offerData.coachNamesStarted.includes(offerData.team2.coach.name),
             }
         };
 
