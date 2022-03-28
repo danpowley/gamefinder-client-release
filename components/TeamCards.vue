@@ -5,15 +5,12 @@
             :title="myTeam.name + '\n' + myTeam.roster.name + '\n' + myTeam.division + (myTeam.league !== null && myTeam.league.name ? ' (' + myTeam.league.name + ')' : '')">
             <div class="cardlogo"><img :src="getTeamLogoUrl(myTeam)"></div>
             <div class="cardinfo">
-                <div class="teaminfo">
-                    <div class="divisionletter">[{{ myTeam.division.charAt(0) }}{{ myTeam.league !== null && myTeam.league.name ? '*' : '' }}]</div>{{
-                    myTeam.teamValue/1000 }}k
+                <div class="teamname">
+                    <div>{{ abbreviate(myTeam.name, 9) }}</div>
                 </div>
-                <div class="opponentinfo">
-                    Oppo:
-                    <div class="allowedopponents" :title="myTeam.allow.length + ' possible opponents'">
-                        <span class="newopponentsicon" v-show="myTeam.hasUnreadItems">&#9679</span>{{ myTeam.allow.length }}
-                    </div>
+                <div class="teaminfo">
+                    <div class="divisionletter">[{{ myTeam.division.charAt(0) }}] <span class="newopponentsicon" v-show="myTeam.hasUnreadItems">&#9679</span></div>
+                    <div class="teamvalue">{{ (myTeam.teamValue/1000) }}k</div>
                 </div>
             </div>
         </div>
@@ -23,6 +20,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
+import { Util } from "../../../core/util";
 import GameFinderHelpers from '../include/GameFinderHelpers';
 
 @Component({
@@ -40,6 +38,10 @@ export default class TeamCardsComponent extends Vue {
 
     public getTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team);
+    }
+
+    public abbreviate(stringValue: string, maxCharacters: number): string {
+        return Util.abbreviate(stringValue, maxCharacters);
     }
 }
 </script>

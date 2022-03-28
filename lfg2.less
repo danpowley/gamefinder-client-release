@@ -348,34 +348,32 @@
         border-top-right-radius: 5px;
         border-bottom-right-radius: 5px;
 
-        .teaminfo {
+        .teamname {
           flex-grow: 1;
           border-top-right-radius: 5px;
           padding: 0;
           border-bottom: solid @Forest 1px;
           margin: 2px 4px 0 0;
-
-          .divisionletter {
-            float: right;
-          }
         }
 
-        .opponentinfo {
+        .teaminfo {
           flex-grow: 1;
           border-bottom-right-radius: 5px;
           margin: 2px 4px 1px 0;
+          display: flex;
 
-          .allowedopponents {
-            float: right;
-            min-width: 15px;
+          .divisionletter {
+            width: 30px;
+          }
+
+          .teamvalue {
+            flex-grow: 1;
             text-align: right;
+          }
 
-            .newopponentsicon {
-              display: inline-block;
-              color: lighten(@Forest, 20%);
-              font-size: 9pt;
-              padding-right: 1px;
-            }
+          .newopponentsicon {
+            color: lighten(@Forest, 20%);
+            font-size: 9pt;
           }
         }
       }
