@@ -6,7 +6,7 @@
             <div class="cardlogo"><img :src="getTeamLogoUrl(myTeam)"></div>
             <div class="cardinfo">
                 <div class="teamname">
-                    <div>{{ abbreviate(myTeam.name, 9) }}</div>
+                    {{ myTeam.name }}
                 </div>
                 <div class="teaminfo">
                     <div class="divisionletter">[{{ myTeam.division.charAt(0) }}] <span class="newopponentsicon" v-show="myTeam.hasUnreadItems">&#9679</span></div>
@@ -20,7 +20,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from "../../../core/util";
 import GameFinderHelpers from '../include/GameFinderHelpers';
 
 @Component({
@@ -38,10 +37,6 @@ export default class TeamCardsComponent extends Vue {
 
     public getTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team);
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 }
 </script>
