@@ -19,8 +19,10 @@ export default class GameFinderPolicies {
     public static sortTeamByDivisionNameLeagueNameTeamName(teamA, teamB) {
         let d = teamA.division > teamB.division ? -1 : (teamA.division === teamB.division ? 0 : 1);
 
-        if (d === 0 && teamA.division === 'League' && teamA.league.name) {
-            d = teamA.league.name > teamB.league.name ? 1 : (teamA.league.name === teamB.league.name ? 0 : -1);
+        if (d === 0 && teamA.division === 'League') {
+            let teamALeague = teamA.league != null ? teamA.league.name : '';
+            let teamBLeague = teamB.league != null ? teamB.league.name : '';
+            d = teamALeague > teamBLeague ? 1 : (teamALeague === teamBLeague ? 0 : -1);
         }
 
         if (d === 0) {
