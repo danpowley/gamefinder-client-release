@@ -118,7 +118,7 @@ export default class OffersComponent extends Vue {
                 offer.team2 = x;
             }
 
-            const offerCreated = this.createOffer(offer);
+            const offerCreated = this.createOfferAndAddToPending(offer);
 
             if (offer.showDialog === true) {
                 startDialogOffer = offerCreated;
@@ -220,11 +220,7 @@ export default class OffersComponent extends Vue {
         return false;
     }
 
-    private createOffer(offerData) {
-        if (this.offerIsAlreadyPending(offerData.id)) {
-            return;
-        }
-
+    private createOfferAndAddToPending(offerData) {
         let offer = {
             id: offerData.id,
             expiry: offerData.expiry,
@@ -249,7 +245,7 @@ export default class OffersComponent extends Vue {
             }
         };
 
-        if (this.isOfferValid(Date.now(), offer)) {
+        if (this.isOfferValid(Date.now(), offer) && !this.offerIsAlreadyPending(offerData.id)) {
             this.pendingOffers.unshift(offer);
         }
 
