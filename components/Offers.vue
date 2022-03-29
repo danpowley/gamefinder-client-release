@@ -120,12 +120,10 @@ export default class OffersComponent extends Vue {
 
             const offerCreated = this.createOfferAndAddToPending(offer);
 
-            if (offer.showDialog === true) {
-                startDialogOffer = offerCreated;
-            }
-
             if (offer.launchGame === true) {
                 launchGameOffer = offerCreated;
+            } else if (offer.showDialog === true) {
+                startDialogOffer = offerCreated;
             }
         }
 
