@@ -1,7 +1,7 @@
 <template>
-    <div class="basicbox">
+    <div class="basicbox" style="margin-top: 20px;">
         <div class="header">Select Teams</div>
-        <div class="content" id="teamswrapper">
+        <div class="content" id="lfgteamswrapper">
             <div class="lfgList">
                 <div v-for="team in teams" :key="team.id" class="lfgteam">
                     <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">

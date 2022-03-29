@@ -1,6 +1,13 @@
 <template>
-    <div class="gamefinder">
-        <div class="startdialog basicbox" v-if="startDialogOffer !== null">
+    <div id="gamefinder">
+        <!-- We use v-if here because we want the component to be mounted each time display changes and force a reload of team data -->
+        <lfgteams
+            v-if="display === 'TEAMS'"
+            :is-dev-mode="isDevMode"
+            :coach-name="coachName"
+            @show-lfg="showLfg"
+            @blackbox-data="handleBlackboxData"></lfgteams>
+        <div id="startdialog" class="basicbox" v-if="startDialogOffer !== null">
             <div class="header">Game offered</div>
             <div class="content">
                 <div class="teams">
@@ -50,68 +57,56 @@
                 </div>
             </div>
         </div>
-        <div class="launchgame basicbox" v-if="launchGameOffer !== null">
+        <div id="launchgame" class="basicbox" v-if="launchGameOffer !== null">
             <div class="header">Game launched</div>
             <div class="content">
                 Good luck, your download should start automatically (but it won't just yet, we're just testing).
             </div>
         </div>
-        <div class="gamefindercolumns" v-if="launchGameOffer === null" v-show="startDialogOffer === null">
-        <div class="leftcolumn">
-            <blackbox
-                v-if="featureFlags.blackbox"
-                :display-is-active="display === 'LFG'"
-                :available="blackboxData.available"
-                :chosen="blackboxData.chosen"></blackbox>
-
-            <offers
-                :is-dev-mode="isDevMode"
-                :offers="offers"
-                :coach-name="coachName"
-                :my-teams="me.teams"
-                :hidden-coaches="hiddenCoaches"
-                @hide-match="handleHideMatch"
-                @show-dialog="handleShowDialog"
-                @launch-game="handleLaunchGame"></offers>
-        </div>
-
-        <div class="rightcolumn">
-            <div id="overallstatus">
-                You have {{ me.teams.length }} team{{ me.teams.length === 1 ? '' : 's' }} looking for a game.
-                <div class="overalllinks"><a href="#" @click.prevent="showTeams">Choose teams</a> <a href="#" @click.prevent="openModal('SETTINGS', {})">Settings</a></div>
+        <div id="gamefindergrid" :class="{manyteamsgrid: me.teams.length > 4, fewteamsgrid: me.teams.length <= 4}" v-if="launchGameOffer === null" v-show="startDialogOffer === null && display === 'LFG'">
+            <div class="overallstatus">
+                <span class="overallinfo">You have {{ me.teams.length }} team{{ me.teams.length === 1 ? '' : 's' }} looking for a game.</span>
+                <a class="chooseteamslink" href="#" @click.prevent="showTeams">Choose teams</a>
+                <a class="settingslink" href="#" @click.prevent="openModal('SETTINGS', {})">Settings</a>
             </div>
+            <teamcards :my-teams="me.teams" @select="selectTeam"></teamcards>
+            <div id="offers">
+                <blackbox
+                    v-if="featureFlags.blackbox"
+                    :available="blackboxData.available"
+                    :chosen="blackboxData.chosen"></blackbox>
 
-            <teamcards v-show="display === 'LFG'" :my-teams="me.teams" @select="selectTeam"></teamcards>
+                <offers
+                    :is-dev-mode="isDevMode"
+                    :offers="offers"
+                    :coach-name="coachName"
+                    :my-teams="me.teams"
+                    :hidden-coaches="hiddenCoaches"
+                    @hide-match="handleHideMatch"
+                    @show-dialog="handleShowDialog"
+                    @launch-game="handleLaunchGame"></offers>
+            </div>
+            <div id="opponents">
+                <selectedownteam
+                    :team="selectedOwnTeam"
+                    :teamSettingsEnabled="featureFlags.teamSettings"
+                    @deselect-team="deselectTeam"
+                    @open-modal="openModal"></selectedownteam>
 
-            <!-- We use v-if here because we want the component to be mounted each time display changes and force a reload of team data -->
-            <lfgteams
-                v-if="display === 'TEAMS'"
-                :is-dev-mode="isDevMode"
-                :coach-name="coachName"
-                @show-lfg="showLfg"
-                @blackbox-data="handleBlackboxData"></lfgteams>
-
-            <selectedownteam
-                v-show="display === 'LFG'"
-                :team="selectedOwnTeam"
-                :teamSettingsEnabled="featureFlags.teamSettings"
-                @deselect-team="deselectTeam"
-                @open-modal="openModal"></selectedownteam>
-
-            <opponents
-                v-show="display == 'LFG'"
-                :is-dev-mode="isDevMode"
-                :coach-name="coachName"
-                :opponent-map="opponentMap"
-                :opponents-refresh-required="opponentsRefreshRequired"
-                :selected-own-team="selectedOwnTeam"
-                :selected-own-team-offered-team-ids="selectedOwnTeamOfferedTeamIds"
-                :hidden-coach-count="hiddenCoaches.length"
-                @refresh="refresh"
-                @hide-match="handleHideMatch"
-                @hide-coach="handleHideCoach"
-                @opponents-refreshed="setOpponentsRefreshed"
-                @open-modal="openModal"></opponents>
+                <opponents
+                    :is-dev-mode="isDevMode"
+                    :coach-name="coachName"
+                    :opponent-map="opponentMap"
+                    :opponents-refresh-required="opponentsRefreshRequired"
+                    :selected-own-team="selectedOwnTeam"
+                    :selected-own-team-offered-team-ids="selectedOwnTeamOfferedTeamIds"
+                    :hidden-coach-count="hiddenCoaches.length"
+                    @refresh="refresh"
+                    @hide-match="handleHideMatch"
+                    @hide-coach="handleHideCoach"
+                    @opponents-refreshed="setOpponentsRefreshed"
+                    @open-modal="openModal"></opponents>
+            </div>
         </div>
 
         <roster
@@ -126,7 +121,6 @@
             @close-modal="closeModal"></settings>
 
         <teamsettings v-if="featureFlags.teamSettings" :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
-        </div>
     </div>
 </template>
 

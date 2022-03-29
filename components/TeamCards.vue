@@ -1,18 +1,15 @@
 <template>
-    <div id="teamcards">
-        <div v-for="myTeam in myTeams" :key="myTeam.id" @click="select(myTeam)"
-            class="teamcard" :class="{active: myTeam.selected}"
+    <div id="cards">
+        <div class="card" v-for="myTeam in myTeams" :key="myTeam.id" @click="select(myTeam)"
+            :class="{active: myTeam.selected}"
             :title="myTeam.name + '\n' + myTeam.roster.name + '\n' + myTeam.division + (myTeam.league !== null && myTeam.league.name ? ' (' + myTeam.league.name + ')' : '')">
-            <div class="cardlogo"><img :src="getTeamLogoUrl(myTeam)"></div>
-            <div class="cardinfo">
-                <div class="teamname">
-                    {{ myTeam.name }}
-                </div>
-                <div class="teaminfo">
-                    <div class="divisionletter">[{{ myTeam.division.charAt(0) }}] <span class="newopponentsicon" v-show="myTeam.hasUnreadItems">&#9679</span></div>
-                    <div class="teamvalue">{{ (myTeam.teamValue/1000) }}k</div>
-                </div>
-            </div>
+            <img class="logo" :src="getTeamLogoUrl(myTeam)">
+            <div class="name">{{ myTeam.name }}</div>
+            <div class="line"></div>
+            <div class="opponentcount" :title="myTeam.allow.length + ' possible opponents.'">Opp:{{ myTeam.allow.length > 99 ? 99 : myTeam.allow.length }}</div>
+            <div class="new" title="You have new opponents to view." v-show="myTeam.hasUnreadItems">&#9679</div>
+            <div class="tv">{{ myTeam.teamValue/1000 }}k</div>
+            <div class="division">[{{ myTeam.division.charAt(0) }}]</div>
         </div>
     </div>
 </template>
