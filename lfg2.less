@@ -36,45 +36,67 @@
     }
   }
 
-  #lfgteamswrapper {
-    padding: 0;
+  #lfgteams {
+    width: 600px;
+    margin: 20px auto 0 auto;
 
-    .lfgteam {
-      border-bottom: solid @Forest 1px;
-      height: 38px;
-      padding: 2px;
-      display: flex;
+    #lfgteamswrapper {
+      padding: 0;
 
-      input {
-        vertical-align: middle;
-        display: inline-block;
-        margin-right: 10px;
+      .lfgteam {
+        border-bottom: solid @Forest 1px;
+        height: 38px;
+        padding: 2px;
+        display: flex;
+
+        input {
+          vertical-align: middle;
+          display: inline-block;
+          margin-right: 10px;
+        }
+
+        img {
+          margin-right: 10px;
+        }
+
+        .teamdetails {
+          max-width: 400px;
+          flex-grow: 1;
+
+          .teamname {
+            font-size: 10pt;
+            .mixin_abbreviate();
+          }
+
+          .teaminfo {
+            font-size: 9pt;
+            font-style: oblique;
+          }
+        }
+
+        .division {
+          width: 200px;
+          margin-right: 10px;
+          text-align: right;
+          display: inline;
+          float: right;
+          .league {
+            font-style: oblique;
+          }
+        }
       }
 
-      img {
-        margin-right: 10px;
-      }
+      .controls {
+        position: relative;
+        padding: 10px;
+        text-align: center;
 
-      .teamname {
-        font-size: 10pt;
-      }
-
-      .teaminfo {
-        font-size: 9pt;
-        font-style: oblique;
-      }
-    }
-
-    .controls {
-      position: relative;
-      padding: 10px;
-      text-align: center;
-
-      #selectall {
-        position: absolute;
-        left: 0;
-        vertical-align: middle;
-        display: inline-block;
+        #selectall {
+          position: absolute;
+          left: 0;
+          vertical-align: middle;
+          display: inline-block;
+        }
       }
     }
   }
@@ -259,9 +281,7 @@
           height: 21px;
           left: 35px;
           right: 4px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          .mixin_abbreviate();
         }
 
         .line {
@@ -824,5 +844,11 @@
     background-color: @Jet;
     color: white;
     font-size: 7pt;
+  }
+
+  .mixin_abbreviate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

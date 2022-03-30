@@ -1,14 +1,18 @@
 <template>
-    <div class="basicbox" style="margin-top: 20px;">
+    <div id="lfgteams" class="basicbox" style="margin-top: 20px;">
         <div class="header">Select Teams</div>
         <div class="content" id="lfgteamswrapper">
             <div class="lfgList">
                 <div v-for="team in teams" :key="team.id" class="lfgteam">
                     <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
                     <img :src="getTeamLogoUrl(team)" />
-                    <div>
-                        <div class="teamname">{{ abbreviate(team.name, 70) }}</div>
+                    <div class="teamdetails">
+                        <div class="teamname">{{ team.name }}</div>
                         <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                    </div>
+                    <div class="division">
+                        <div>{{ team.division }}</div>
+                        <div v-if="team.league !== null" class="league">{{ team.league.Name }}</div>
                     </div>
                 </div>
             </div>
@@ -26,7 +30,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from '../../../core/util';
 import GameFinderPolicies from '../include/GameFinderPolicies';
 import GameFinderHelpers from '../include/GameFinderHelpers';
 import IBackendApi from "../include/IBackendApi";
@@ -134,10 +137,6 @@ export default class LfgTeamsComponent extends Vue {
             allCheckbox.checked = false;
             allCheckbox.indeterminate = true;
         }
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 
     public getTeamLogoUrl(team: any): string {
