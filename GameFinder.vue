@@ -18,7 +18,7 @@
                     <div class="details">
                         <div class="homedetails">
                             <div class="name">
-                                {{ abbreviate(startDialogOffer.home.team, 30) }}
+                                {{ startDialogOffer.home.team }}
                             </div>
                             <div class="coach">
                                 {{ startDialogOffer.home.coach.name }} ({{ startDialogOffer.home.coach.rating }})
@@ -32,7 +32,7 @@
                         </div>
                         <div class="awaydetails">
                             <div class="name">
-                                {{ abbreviate(startDialogOffer.away.team, 30) }}
+                                {{ startDialogOffer.away.team }}
                             </div>
                             <div class="coach">
                                 {{ startDialogOffer.away.coach.name }} ({{ startDialogOffer.away.coach.rating }})
@@ -533,10 +533,6 @@ export default class GameFinder extends Vue {
 
     public setOpponentsRefreshed() {
         this.opponentsRefreshRequired = false;
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 
     public getLargeTeamLogoUrl(team: any): string {

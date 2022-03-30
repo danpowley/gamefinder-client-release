@@ -10,7 +10,7 @@
                     <div class="icon cancel" @click.prevent="cancelOffer(offer)">&#x2718;</div>
                     <div class="offeredteam home">
                         <div class="name">
-                            {{ abbreviate(offer.home.team, 30) }}
+                            {{ offer.home.team }}
                         </div>
                         <div class="coach">
                             {{ offer.home.coach.name }} ({{ offer.home.coach.rating }})
@@ -28,7 +28,7 @@
                             {{ offer.away.coach.name }} ({{ offer.away.coach.rating }})
                         </div>
                         <div class="name">
-                            {{ abbreviate(offer.away.team, 30) }}
+                            {{ offer.away.team }}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from '../../../core/util';
 import IBackendApi from "../include/IBackendApi";
 import GameFinderHelpers from "../include/GameFinderHelpers";
 
@@ -285,10 +284,6 @@ export default class OffersComponent extends Vue {
 
     public setUiUpdatesPaused(isPaused: boolean) {
         this.uiUpdatesPaused = isPaused;
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 }
 </script>

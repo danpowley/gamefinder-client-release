@@ -5,7 +5,7 @@
                 <img :src="getTeamLogoUrl(team)" />
             </div>
             <div class="teamdetails">
-                <div class="teamname"><a href="#" @click.prevent="openModal('ROSTER', {team: team})">{{ abbreviate(team.name, 65) }}</a></div>
+                <div class="teamname"><a href="#" @click.prevent="openModal('ROSTER', {team: team})">{{ team.name }}</a></div>
                 <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
             </div>
             <div class="teamextras">
@@ -27,7 +27,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from '../../../core/util';
 import GameFinderHelpers from '../include/GameFinderHelpers';
 
 @Component({
@@ -50,10 +49,6 @@ export default class SelectedOwnTeamComponent extends Vue {
 
     public openModal(name: string, modalSettings: any) {
         this.$emit('open-modal', name, modalSettings);
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 
     public getTeamLogoUrl(team: any): string {

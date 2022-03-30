@@ -2,7 +2,9 @@
     <div v-if="team" class="teamsettingsouter">
         <div class="teamsettingsinner">
             <a href="#" class="closemodal" @click.prevent="close">&times;</a>
-            <div class="settingstitle">Settings for: {{ abbreviate(team.name, 50) }}</div>
+            <div class="settingstitle">
+                Settings for: {{ team.name }}
+            </div>
             <div class="settingssection">
                 <div class="title"><strong>Allowed CTV Range:</strong></div>
                 <div>Leave blank to use Gamefinder defaults.</div>
@@ -21,7 +23,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from '../../../core/util';
 
 @Component({
     props: {
@@ -35,10 +36,6 @@ import { Util } from '../../../core/util';
 export default class TeamSettingsComponent extends Vue {
     public close() {
         this.$emit('close-modal');
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 }
 </script>

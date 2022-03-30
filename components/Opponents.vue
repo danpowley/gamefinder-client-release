@@ -406,7 +406,10 @@ export default class OpponentsComponent extends Vue {
     }
 
     public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
+        if (stringValue.length <= maxCharacters) {
+            return stringValue;
+        }
+        return stringValue.substring(0, maxCharacters-1) + '…';
     }
 
     public getTeamLogoUrl(team: any): string {

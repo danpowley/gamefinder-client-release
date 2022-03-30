@@ -133,6 +133,8 @@
       }
       .name {
         font-size: 14pt;
+        max-width: 200px;
+        .mixin_abbreviate();
       }
     }
     .timer {
@@ -425,6 +427,7 @@
             .name {
               font-size: 10pt;
               font-weight: 700;
+              .mixin_abbreviate();
             }
 
             .desc, .coach {
@@ -474,6 +477,8 @@
 
       .teamname {
         font-size: 11pt;
+        max-width: 500px;
+        .mixin_abbreviate();
       }
 
       .teaminfo {
@@ -730,6 +735,16 @@
 
             .name {
               font-size: 12pt;
+              .teampagelink {
+                display: inline-block;
+                max-width: 250px;
+                .mixin_abbreviate();
+              }
+              .coachpagelink {
+                display: inline-block;
+                max-width: 100px;
+                .mixin_abbreviate();
+              }
             }
             .info {
               font-style: oblique;
@@ -749,7 +764,8 @@
 
             &.position {
               white-space: nowrap;
-              width: 100px;
+              width: 130px;
+              padding-right: 10px;
             }
 
             &.injuries {
@@ -786,7 +802,8 @@
 
           .details {
             .name {
-
+              max-width: 180px;
+              .mixin_abbreviate();
             }
             .info {
               font-style: oblique;

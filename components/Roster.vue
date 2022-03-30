@@ -10,7 +10,7 @@
                     <div class="details">
                         <div class="name">
                             <!-- @christer absolute url used multiple times -->
-                            <a :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="'Open team page for ' + rosterData.name + ' in a new tab.'">{{ abbreviate(rosterData.name, 30) }}</a> (<a :href="'https://fumbbl.com/~' + rosterData.coach.name" target="_blank" :title="'Open coach page for ' + rosterData.coach.name + ' in a new tab'">{{ abbreviate(rosterData.coach.name, 10) }}</a>)
+                            <a class="teampagelink" :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="'Open team page for ' + rosterData.name + ' in a new tab.'">{{ rosterData.name }}</a> (<a class="coachpagelink" :href="'https://fumbbl.com/~' + rosterData.coach.name" target="_blank" :title="'Open coach page for ' + rosterData.coach.name + ' in a new tab'">{{ rosterData.coach.name }}</a>)
                         </div>
                         <div class="info">
                             <span title="Team Value">{{ rosterData.teamValue/1000 }}k</span> {{ rosterData.roster.name }}, <span title="Number of rerolls">{{ rosterData.rerolls }} RR</span>, <span title="Dedicated fans.">{{rosterData.fanFactor}} DF</span>, <span title="Treasury available">{{ rosterData.treasury/1000 }}k gold</span>, <span title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>, <span title="Team record: win/tie/loss">{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
@@ -42,11 +42,11 @@
                         </div>
                         <div class="details">
                             <div class="name">
-                                {{ abbreviate(myTeam.name, 30) }}
+                                {{ myTeam.name }}
                             </div>
                             <div class="info">
                                 <template v-if="! recentOffersSent.includes(myTeam.id)">
-                                    {{ myTeam.teamValue/1000 }}k {{ myTeam.race }}
+                                    {{ myTeam.teamValue/1000 }}k {{ myTeam.roster.name }}
                                 </template>
                                 <template v-else>
                                     <span class="offeredtag">Offered</span>
@@ -63,7 +63,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { Util } from '../../../core/util';
 import GameFinderHelpers from "../include/GameFinderHelpers";
 import IBackendApi from "../include/IBackendApi";
 
@@ -164,10 +163,6 @@ export default class RosterComponent extends Vue {
         }
         this.backendApi.sendOffer(myTeam.id, this.$props.settings.displayTeam.id);
         this.recentOffersSent.push(myTeam.id);
-    }
-
-    public abbreviate(stringValue: string, maxCharacters: number): string {
-        return Util.abbreviate(stringValue, maxCharacters);
     }
 
     public getTeamLogoUrl(team: any): string {
