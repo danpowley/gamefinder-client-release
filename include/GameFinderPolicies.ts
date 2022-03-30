@@ -1,7 +1,4 @@
 export default class GameFinderPolicies {
-    // @christer choose how long before a users hidden match re-appears
-    private static readonly hiddenMatchDurationSeconds = 5;
-
     public static isMatchAllowed(myTeam, opponentTeam): boolean {
         if (!myTeam || !opponentTeam) {
             return false;
@@ -38,9 +35,5 @@ export default class GameFinderPolicies {
 
     public static teamIsCompetitiveDivision(team: any): boolean {
         return team.division === 'Competitive';
-    }
-
-    public static getHiddenMatchesExpiry(): number {
-        return Date.now() - this.hiddenMatchDurationSeconds * 1000;
     }
 }

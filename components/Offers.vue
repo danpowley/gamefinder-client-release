@@ -75,8 +75,6 @@ export default class OffersComponent extends Vue {
 
     private uiUpdatesPaused: boolean = false;
 
-    private cancelledOfferIds:number[] = [];
-
     public fadeOutId: number | null = null;
 
     async mounted() {
@@ -180,10 +178,6 @@ export default class OffersComponent extends Vue {
     }
 
     private isOfferValid(now: number, offer: any): boolean {
-        if (this.cancelledOfferIds.includes(offer.id)) {
-            return false;
-        }
-
         if (offer.expiry < now) {
             return false;
         }
@@ -260,35 +254,13 @@ export default class OffersComponent extends Vue {
     }
 
     public cancelOffer(offer: any): void {
-        if (offer.external) {
-            // we need to use the team from myTeams as this holds the hiddenMatches data
-            const myTeam = this.getMyTeam(offer.home.id);
-            if (! myTeam) {
-                return;
-            }
-
-            this.applyFade(
-                () => {
-                    this.cancelledOfferIds.push(offer.id);
-                    this.$emit('hide-match', myTeam, offer.away.id);
-                },
-                offer.id,
-                500
-            );
-        } else {
-            this.applyFade(
-                () => {
-                    this.cancelledOfferIds.push(offer.id);
-                    let index = this.$props.offers.findIndex((o) => o.id === offer.id);
-                    if (index !== -1) {
-                        this.$props.offers.splice(index, 1);
-                    }
-                    this.backendApi.cancelOffer(offer.home.id, offer.away.id);
-                },
-                offer.id,
-                500
-            );
-        }
+        this.applyFade(
+            () => {
+                this.$emit('hide-match', offer.home.id, offer.away.id);
+            },
+            offer.id,
+            500
+        );
     }
 
     public acceptOffer(offer: any): void {

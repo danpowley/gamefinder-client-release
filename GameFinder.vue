@@ -7,6 +7,7 @@
             :coach-name="coachName"
             @show-lfg="showLfg"
             @blackbox-data="handleBlackboxData"></lfgteams>
+
         <div id="startdialog" class="basicbox" v-if="startDialogOffer !== null">
             <div class="header">Game offered</div>
             <div class="content">
@@ -241,7 +242,6 @@ export default class GameFinder extends Vue {
         this.refreshOwnTeamSelectionSettings();
         this.refreshOwnTeamsAllowedSettings();
         this.refreshOwnTeamsUnreadSettings();
-        this.refreshMyTeamsHiddenMatchesExpired();
         this.refreshOpponentVisibility();
     }
 
@@ -302,20 +302,6 @@ export default class GameFinder extends Vue {
                 }
             }
             team.hasUnreadItems = newEntriesFound;
-        }
-    }
-
-    private refreshMyTeamsHiddenMatchesExpired() {
-        for (const myTeam of this.me.teams) {
-            const unexpiredHiddenMatches = [];
-
-            for (const hiddenMatchDetails of myTeam.hiddenMatches) {
-                if (hiddenMatchDetails.hiddenDate > GameFinderPolicies.getHiddenMatchesExpiry()) {
-                    unexpiredHiddenMatches.push(hiddenMatchDetails);
-                }
-            }
-
-            myTeam.hiddenMatches = unexpiredHiddenMatches;
         }
     }
 
@@ -402,11 +388,28 @@ export default class GameFinder extends Vue {
         this.blackboxData = blackboxData;
     }
 
-    public handleHideMatch(myTeam: any, opponentTeamId: number): void {
-        this.backendApi.cancelOffer(myTeam.id, opponentTeamId);
-        myTeam.hiddenMatches.push({opponentTeamId: opponentTeamId, hiddenDate: Date.now()});
+    public handleHideMatch(myTeamId: number, opponentTeamId: number): void {
+        this.removeOfferFromOffers(myTeamId, opponentTeamId);
+        this.addOpponentTeamIdToHiddenMatchesTempUntilBackendSupport(myTeamId, opponentTeamId);
         this.refreshOwnTeamsAllowedSettings();
         this.refreshOpponentVisibility();
+        this.backendApi.cancelOffer(myTeamId, opponentTeamId);
+    }
+
+    private removeOfferFromOffers(myTeamId: number, opponentTeamId: number): void
+    {
+        const index = this.offers.findIndex((o) => o.home.id === myTeamId && o.away.id === opponentTeamId);
+        if (index !== -1) {
+            this.offers.splice(index, 1);
+        }
+    }
+
+    private addOpponentTeamIdToHiddenMatchesTempUntilBackendSupport(myTeamId: number, opponentTeamId: number): void {
+        for (const myTeam of this.me.teams) {
+            if (myTeam.id === myTeamId) {
+                myTeam.hiddenMatches.push({opponentTeamId: opponentTeamId, hiddenDate: Date.now()});;
+            }
+        }
     }
 
     public handleHideCoach(id: number, name: string): void {
@@ -435,21 +438,12 @@ export default class GameFinder extends Vue {
         }
     }
 
-    private getMyTeam(myTeamId: number): any | null {
-        for (const myTeam of this.me.teams) {
-            if (myTeam.id === myTeamId) {
-                return myTeam;
-            }
-        }
-        return null;
-    }
-
     public declineGame()
     {
         if (this.startDialogOffer === null) {
             return;
         }
-        this.handleHideMatch(this.getMyTeam(this.startDialogOffer.home.id), this.startDialogOffer.away.id);
+        this.handleHideMatch(this.startDialogOffer.home.id, this.startDialogOffer.away.id);
     }
 
     public startGame()

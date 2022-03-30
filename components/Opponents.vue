@@ -367,7 +367,7 @@ export default class OpponentsComponent extends Vue {
         }
 
         this.applyFade(
-            () => this.$emit('hide-match', this.$props.selectedOwnTeam, opponentTeamId),
+            () => this.$emit('hide-match', this.$props.selectedOwnTeam.id, opponentTeamId),
             'team',
             opponentTeamId,
             300
