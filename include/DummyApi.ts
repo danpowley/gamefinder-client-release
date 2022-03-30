@@ -27,6 +27,11 @@ export default class DummyApi implements IBackendApi {
         return result.data;
     }
 
+    public async rosterSettings(rosterId: number): Promise<any> {
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/roster/get/' + rosterId));
+        return result.data;
+    }
+
     public addAllTeams(): void {
         Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/addallteams'));
     }

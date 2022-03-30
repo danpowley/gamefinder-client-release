@@ -7,6 +7,8 @@ export default interface IBackendApi {
 
     rosterData(teamId: number): Promise<any>;
 
+    rosterSettings(rosterId: number): Promise<any>;
+
     addAllTeams(): void;
 
     removeAllTeams(): void;

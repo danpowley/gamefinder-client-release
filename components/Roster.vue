@@ -20,7 +20,7 @@
                 <table cellspacing="0" cellpadding="0" width="100%">
                     <tr v-for="player in rosterData.players" :key="player.id">
                         <!-- @christer absolute url used -->
-                        <td style="width: 34px; height: 34px; background: rgba(0, 0, 0, 0) url('http://fumbbl.com/i/585610') repeat scroll 0px -68px;"></td>
+                        <td :style="getPlayerIconStyle(player.positionId, rosterData.positionIcons)"></td>
                         <td class="position">{{ player.position }}</td>
                         <td class="injuries">{{ player.injuries }}</td>
                         <td>{{ player.skills }}</td>
@@ -128,6 +128,13 @@ export default class RosterComponent extends Vue {
         if (data == undefined) {
             const rosterData = await this.backendApi.rosterData(teamId);
 
+            const rosterSettings = await this.backendApi.rosterSettings(rosterData.roster.id);
+            const positionIcons = {};
+            for (const position of rosterSettings.positions) {
+                positionIcons[position.id] = position.icon;
+            }
+            rosterData.positionIcons = positionIcons;
+
             for (const p of rosterData.players) {
                 p.skills.sort((a,b) => a.localeCompare(b));
                 p.skills = p.skills.join(', ');
@@ -165,6 +172,11 @@ export default class RosterComponent extends Vue {
 
     public getTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team);
+    }
+
+    public getPlayerIconStyle(positionId: number, positionIcons: any): string {
+        const positionIconId = positionIcons[positionId];
+        return `width: 28px; height: 28px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconId}") repeat scroll 0px 0px;'"`;
     }
 }
 </script>

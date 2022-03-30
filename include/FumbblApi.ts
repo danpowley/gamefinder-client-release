@@ -21,6 +21,11 @@ export default class FumbblApi implements IBackendApi {
         return result.data;
     }
 
+    public async rosterSettings(rosterId: number): Promise<any> {
+        const result = await Axios.post('/api/roster/get/' + rosterId);
+        return result.data;
+    }
+
     public addAllTeams(): void {
         Axios.post('/api/gamefinder/addallteams');
     }
