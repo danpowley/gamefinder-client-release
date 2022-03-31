@@ -12,7 +12,7 @@
                     </div>
                     <div class="division">
                         <div>{{ team.division }}</div>
-                        <div v-if="team.league !== null" class="league">{{ team.league.Name }}</div>
+                        <div v-if="team.league !== null" class="league">{{ team.league.name }}</div>
                     </div>
                 </div>
             </div>
