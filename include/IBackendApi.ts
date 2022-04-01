@@ -1,7 +1,7 @@
 export default interface IBackendApi {
     activate(): Promise<void>;
 
-    activeTeams(): Promise<any[]>;
+    getState(): Promise<any>;
 
     allTeams(coachName: string): Promise<any[]>;
 
@@ -17,13 +17,9 @@ export default interface IBackendApi {
 
     removeTeam(id: number): void;
 
-    getOffers(): Promise<any[]>;
-
     sendOffer(myTeamId: number, opponentTeamId: number): Promise<void>;
 
     cancelOffer(myTeamId: number, opponentTeamId: number): void;
 
     startGame(myTeamId: number, opponentTeamId: number): void;
-
-    teamsAsOpponents(): Promise<any[]>;
 }

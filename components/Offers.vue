@@ -53,6 +53,14 @@ import GameFinderHelpers from "../include/GameFinderHelpers";
             type: String,
             required: true
         },
+        matchesLastUpdated: {
+            type: Number,
+            required: true
+        },
+        matches: {
+            type: Array,
+            required: true
+        },
         offers: {
             type: Array,
             required: true
@@ -64,6 +72,12 @@ import GameFinderHelpers from "../include/GameFinderHelpers";
         hiddenCoaches: {
             type: Array,
             required: true
+        }
+    },
+    watch: {
+        matchesLastUpdated: function () {
+            // @ts-ignore: Property 'getOffersFromMatches' does not exist on type 'Vue'.
+            return this.getOffersFromMatches();
         }
     }
 })
@@ -79,7 +93,6 @@ export default class OffersComponent extends Vue {
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
         setInterval(this.tick, 100);
-        setInterval(this.getOffers, 1000);
     }
 
     public tick() {
@@ -94,9 +107,8 @@ export default class OffersComponent extends Vue {
         }
     }
 
-    private async getOffers() {
+    private async getOffersFromMatches() {
         const pre = Date.now();
-        const offers = await this.backendApi.getOffers();
         const now = Date.now();
 
         const avgTime = now / 2 + pre / 2;
@@ -104,7 +116,7 @@ export default class OffersComponent extends Vue {
         let startDialogOffer = null;
         let launchGameOffer = null;
 
-        for (const offer of offers) {
+        for (const offer of this.$props.matches) {
             offer.expiry = avgTime + offer.timeRemaining;
             offer.external = offer.awaitingResponse === true && offer.showDialog === false;
 

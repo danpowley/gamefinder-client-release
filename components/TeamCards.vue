@@ -1,7 +1,7 @@
 <template>
     <div id="cards">
         <div class="card" v-for="myTeam in myTeams" :key="myTeam.id" @click="select(myTeam)"
-            :class="{active: myTeam.selected}"
+            :class="{active: myTeam.id === selectedOwnTeamId}"
             :title="myTeam.name + '\n' + myTeam.roster.name + '\n' + myTeam.division + (myTeam.league !== null && myTeam.league.name ? ' (' + myTeam.league.name + ')' : '')">
             <img class="logo" :src="getTeamLogoUrl(myTeam)">
             <div class="name">{{ myTeam.name }}</div>
@@ -21,6 +21,10 @@ import GameFinderHelpers from '../include/GameFinderHelpers';
 
 @Component({
     props: {
+        selectedOwnTeamId: {
+            type: Number,
+            required: true
+        },
         myTeams: {
             type: Array,
             required: true

@@ -1,18 +1,4 @@
 export default class GameFinderPolicies {
-    public static isMatchAllowed(myTeam, opponentTeam): boolean {
-        if (!myTeam || !opponentTeam) {
-            return false;
-        }
-
-        for (const hiddenMatchDetails of myTeam.hiddenMatches) {
-            if (hiddenMatchDetails.opponentTeamId === opponentTeam.id) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public static sortTeamByDivisionNameLeagueNameTeamName(teamA, teamB) {
         let d = teamA.division > teamB.division ? -1 : (teamA.division === teamB.division ? 0 : 1);
 

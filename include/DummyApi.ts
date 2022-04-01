@@ -9,11 +9,11 @@ export default class DummyApi implements IBackendApi {
     }
 
     public async activate(): Promise<void> {
-        await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/activate'))
-    };
+        await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/activate'));
+    }
 
-    public async activeTeams(): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/coachteams'));
+    public async getState(): Promise<any> {
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/state'));
         return result.data;
     }
 
@@ -48,11 +48,6 @@ export default class DummyApi implements IBackendApi {
         Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/removeteam/' + id));
     }
 
-    public async getOffers(): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/getoffers'));
-        return result.data;
-    }
-
     public async sendOffer(myTeamId: number, opponentTeamId: number): Promise<void> {
         await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/offer/' + myTeamId + '/' + opponentTeamId));
     }
@@ -64,9 +59,4 @@ export default class DummyApi implements IBackendApi {
     public startGame(myTeamId: number, opponentTeamId: number): void {
         Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/startgame/' + myTeamId + '/' + opponentTeamId));
     };
-
-    public async teamsAsOpponents(): Promise<any[]> {
-        const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/teams'));
-        return result.data
-    }
 }
