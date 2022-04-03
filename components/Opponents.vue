@@ -266,6 +266,9 @@ export default class OpponentsComponent extends Vue {
                 this.sortOpponents();
                 this.$emit('refresh');
                 this.recentOffers = [];
+
+                // clear the temporary fadeOutId so it doesn't keep hiding anything that is visible again
+                this.fadeOutId = null;
             }
         }        
     }
@@ -337,7 +340,7 @@ export default class OpponentsComponent extends Vue {
 
     private hasRecentOffer(teamId) {
         for (const recentOfferDetails of this.recentOffers) {
-            if (recentOfferDetails.offerDate > Date.now() - 5) {
+            if (recentOfferDetails.offerDate > Date.now() - 3000) {
                 if (recentOfferDetails.myTeamId === this.$props.selectedOwnTeam.id && recentOfferDetails.opponentTeamId === teamId) {
                     return true;
                 }
@@ -390,11 +393,6 @@ export default class OpponentsComponent extends Vue {
         setTimeout(() => {
             // run the real workload
             workload();
-
-            // clear the fadeOutId so it doesn't keep on hiding the element when this becomes visible again
-            if (this.fadeOutId === fadeOutId) {
-                this.fadeOutId = null;
-            }
         }, waitTime);
     }
 

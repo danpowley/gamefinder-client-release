@@ -165,7 +165,7 @@ export default class GameFinder extends Vue {
     private backendApi: IBackendApi;
 
     public coachName: string | null = null;
-    public display: 'LFG' | 'TEAMS' | 'NONE' = 'LFG';
+    public display: 'LFG' | 'TEAMS' = 'LFG';
     public featureFlags = {blackbox: false, teamSettings: false};
 
     public startDialogOffer:any = null;
@@ -212,7 +212,7 @@ export default class GameFinder extends Vue {
     {
         const matchesAndTeamsState = await this.backendApi.getState();
         this.refreshMyTeams(matchesAndTeamsState);
-        this.refreshOpponentVisibility();
+        this.refresh();
         this.matchesAndTeamsState = matchesAndTeamsState;
         this.matchesAndTeamsStateLastUpdated = Date.now();
     }
@@ -271,8 +271,6 @@ export default class GameFinder extends Vue {
     }
 
     public async showLfg() {
-        this.display = 'NONE';
-
         await this.backendApi.activate();
 
         // always select if only 1 team
@@ -283,7 +281,7 @@ export default class GameFinder extends Vue {
 
         this.refresh();
 
-        this.display = 'LFG';
+        setTimeout(() => this.display = 'LFG', 3000);
     }
 
     public async showTeams() {
@@ -425,11 +423,23 @@ export default class GameFinder extends Vue {
     }
 
     public handleHideMatch(myTeamId: number, opponentTeamId: number): void {
-        this.removeOfferFromOffers(myTeamId, opponentTeamId);
+        this.removeAllowedUiOnly(myTeamId, opponentTeamId);
+        this.removeOfferUiOnly(myTeamId, opponentTeamId);
         this.backendApi.cancelOffer(myTeamId, opponentTeamId);
     }
 
-    private removeOfferFromOffers(myTeamId: number, opponentTeamId: number): void
+    private removeAllowedUiOnly(myTeamId: number, opponentTeamId: number): void {
+        for (const myTeam of this.me.teams) {
+            if (myTeam.id === myTeamId) {
+                const index = myTeam.allow.findIndex((teamId) => teamId === opponentTeamId);
+                if (index !== -1) {
+                    myTeam.allow.splice(index, 1);
+                }
+            }
+        }
+    }
+
+    private removeOfferUiOnly(myTeamId: number, opponentTeamId: number): void
     {
         const index = this.offers.findIndex((o) => o.home.id === myTeamId && o.away.id === opponentTeamId);
         if (index !== -1) {

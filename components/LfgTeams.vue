@@ -21,7 +21,12 @@
                     <input type="checkbox" id="all" @change="toggleAll"/>
                     <label for="all">Select All</label>
                 </div>
-                <input type="button" id="showlfg" value="Done" @click="showLfg" />
+                <template v-if="activateTeamsButtonClicked">
+                    Please wait, teams activating.
+                </template>
+                <template v-else>
+                    <input type="button" id="showlfg" value="Activate teams" @click="showLfg" />
+                </template>
             </div>
         </div>
     </div>
@@ -50,13 +55,16 @@ export default class LfgTeamsComponent extends Vue {
     private backendApi: IBackendApi | null = null;
     public teams: any[] = [];
     public checked: boolean[] = [];
+    public activateTeamsButtonClicked: boolean = false;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
+        this.activateTeamsButtonClicked = false;
         await this.reloadTeams();
     }
 
     public async showLfg() {
+        this.activateTeamsButtonClicked = true;
         await this.updateBlackboxData();
         this.$emit('show-lfg');
     }
