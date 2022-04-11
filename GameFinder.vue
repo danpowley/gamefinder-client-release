@@ -1,5 +1,10 @@
 <template>
     <div id="gamefinder">
+        <div class="getstateerrorbanner" v-show="stateUpdateErrorMessage">
+            Gamefinder encountered an error whilst getting the latest game data, if this issue continues, please reload the page.
+            <div>{{ stateUpdateErrorMessage }}</div>
+        </div>
+
         <!-- We use v-if here because we want the component to be mounted each time display changes and force a reload of team data -->
         <lfgteams
             v-if="display === 'TEAMS'"
@@ -127,6 +132,10 @@
             @close-modal="closeModal"></settings>
 
         <teamsettings v-if="featureFlags.teamSettings" :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
+
+        <stateupdatespaused
+            :paused="stateUpdatesArePaused"
+            @continue-session="handleContinueSession"></stateupdatespaused>
     </div>
 </template>
 
@@ -144,6 +153,7 @@ import TeamCardsComponent from "./components/TeamCards.vue";
 import SelectedOwnTeamComponent from "./components/SelectedOwnTeam.vue";
 import OffersComponent from "./components/Offers.vue";
 import OpponentsComponent from "./components/Opponents.vue";
+import StateUpdatesPausedComponent from "./components/StateUpdatesPaused.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
 
@@ -157,7 +167,8 @@ import GameFinderHelpers from "./include/GameFinderHelpers";
         'teamcards': TeamCardsComponent,
         'selectedownteam': SelectedOwnTeamComponent,
         'offers': OffersComponent,
-        'opponents': OpponentsComponent
+        'opponents': OpponentsComponent,
+        'stateupdatespaused': StateUpdatesPausedComponent
     }
 })
 export default class GameFinder extends Vue {
@@ -167,6 +178,10 @@ export default class GameFinder extends Vue {
     public coachName: string | null = null;
     public display: 'LFG' | 'TEAMS' = 'LFG';
     public featureFlags = {blackbox: false, teamSettings: false};
+
+    public secondsBetweenGetStateCalls: number = 1;
+    public stateUpdatesArePaused: boolean = false;
+    public stateUpdateErrorMessage: string | null = null;
 
     public startDialogOffer:any = null;
     public launchGameOffer:any = null;
@@ -204,8 +219,29 @@ export default class GameFinder extends Vue {
 
         document.addEventListener('click', this.onOuterModalClick);
 
+        this.beginGetStatePolling();
+    }
+
+    public async beginGetStatePolling() {
         await this.getState();
-        setInterval(this.getState, 1000);
+
+        const getStateWithSetTimeout = async () => {
+            if (this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - 10000) {
+                this.stateUpdatesArePaused = true;
+                return;
+            }
+
+            try {
+                await this.getState();
+                this.stateUpdateErrorMessage = null;
+            } catch (error) {
+                this.stateUpdateErrorMessage = (error as Error).name + ': ' + (error as Error).message;
+            }
+
+            setTimeout(getStateWithSetTimeout, this.secondsBetweenGetStateCalls*1000);
+        };
+
+        getStateWithSetTimeout();
     }
 
     public async getState()
@@ -562,6 +598,12 @@ export default class GameFinder extends Vue {
 
     public getLargeTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team, false);
+    }
+
+    public async handleContinueSession() {
+        this.stateUpdatesArePaused = false;
+        await this.backendApi.activate();
+        this.beginGetStatePolling();
     }
 }
 </script>

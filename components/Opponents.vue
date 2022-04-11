@@ -24,7 +24,7 @@
                 <span v-show="! isExpanded(opponent)"><a href="#" class="hidecoach" @click.prevent="hideCoach(opponent.id, opponent.name)">hide</a></span>
             </div>
             <div v-show="isExpanded(opponent)">
-                <div v-for="oppTeam in opponent.teams" v-if="oppTeam.visible" :key="oppTeam.id" class="team" :class="{wholeteamclickable: ! isOwnTeamSelected, fadeout: fadeOutId === 'team' + oppTeam.id}" @click.prevent="() => {! isOwnTeamSelected ? openModal('ROSTER', {team: oppTeam}): null;}">
+                <div v-for="oppTeam in opponent.teams" v-if="oppTeam.visible && ! inHideMatchQueue(oppTeam.id, 300)" :key="oppTeam.id" class="team" :class="{wholeteamclickable: ! isOwnTeamSelected, fadeout: inHideMatchQueue(oppTeam.id, null)}" @click.prevent="() => {! isOwnTeamSelected ? openModal('ROSTER', {team: oppTeam}): null;}">
                     <div class="logo">
                         <img :src="getTeamLogoUrl(oppTeam)" />
                     </div>
@@ -134,6 +134,7 @@ export default class OpponentsComponent extends Vue {
     private recentOffers: {myTeamId: number, opponentTeamId: number, offerDate: number}[] = [];
 
     public fadeOutId: string | null = null;
+    public hideMatchQueue: {ownTeamId: number, opponentTeamId: number, hiddenDate: number, emitted: boolean}[] = [];
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -170,6 +171,8 @@ export default class OpponentsComponent extends Vue {
     }
 
     private processOpponents() {
+        this.processHideMatchQueue();
+
         // Process updated opponent list
         if (this.opponentsNeedUpdate) {
             this.opponentsNeedUpdate = false;
@@ -277,6 +280,26 @@ export default class OpponentsComponent extends Vue {
         this.opponents.sort((a,b) => a.name.localeCompare(b.name));
     }
 
+    private processHideMatchQueue() {
+        // items remain in queue for 60 seconds (keep UI accurate for very slow connections)
+        const timeToKeepInQueue = 60000;
+        // 'hide-match' event emitted after short delay, allow for CSS transitions
+        const timeToDelayEmit = 300;
+
+        const hideMatchQueue = this.hideMatchQueue;
+        this.hideMatchQueue = [];
+        for (const hiddenMatch of hideMatchQueue) {
+            const timeSinceHidden = Math.floor((Date.now() - hiddenMatch.hiddenDate));
+            if (timeSinceHidden < timeToKeepInQueue) {
+                if (timeSinceHidden > timeToDelayEmit && hiddenMatch.emitted === false) {
+                    hiddenMatch.emitted = true;
+                    this.$emit('hide-match', hiddenMatch.ownTeamId, hiddenMatch.opponentTeamId);
+                }
+                this.hideMatchQueue.push(hiddenMatch);
+            }
+        }
+    }
+
     public get visibleOpponents(): any[] {
         const visibleOpponents = [];
         for (const opponent of this.opponents) {
@@ -366,12 +389,25 @@ export default class OpponentsComponent extends Vue {
             return;
         }
 
-        this.applyFade(
-            () => this.$emit('hide-match', this.$props.selectedOwnTeam.id, opponentTeamId),
-            'team',
-            opponentTeamId,
-            300
-        );
+        this.hideMatchQueue.push({ownTeamId: this.$props.selectedOwnTeam.id, opponentTeamId: opponentTeamId, hiddenDate: Date.now(), emitted: false});
+    }
+
+    public inHideMatchQueue(opponentTeamId: number, hiddenForMilliseconds: number | null): boolean {
+        if (! this.$props.selectedOwnTeam) {
+            return false;
+        }
+
+        for (const hiddenMatch of this.hideMatchQueue) {
+            if (hiddenMatch.ownTeamId === this.$props.selectedOwnTeam.id && hiddenMatch.opponentTeamId === opponentTeamId) {
+                if (hiddenForMilliseconds === null) {
+                    return true;
+                }
+
+                return (Date.now() - hiddenMatch.hiddenDate) >= hiddenForMilliseconds;
+            }
+        }
+
+        return false;
     }
 
     public hideCoach(id: number, name: string) {

@@ -845,6 +845,13 @@
     }
   }
 
+  .stateupdatespausedouter {
+    .mixin_modalouter();
+    .stateupdatespausedinner {
+      .mixin_modalinner();
+    }
+  }
+
   .muted {
     color: @Quicksilver;
   }
@@ -852,7 +859,7 @@
   .fadeout {
     visibility: hidden;
     opacity: 0;
-    transition: visibility 0s 0.3s, opacity 0.3s linear;
+    transition: visibility 0s linear 0.3s, opacity 0.3s linear;
   }
 
   .offeredtag {
@@ -868,5 +875,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .getstateerrorbanner {
+    font-size: 11pt;
+    background-color: #A10005;
+    color: white;
+    padding: 10px;
   }
 }
