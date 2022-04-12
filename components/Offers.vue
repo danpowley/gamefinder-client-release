@@ -34,6 +34,10 @@
                 </div>
             </div>
         </div>
+        <audio id="audionewexternaloffer">
+            <source src="https://fumbbl.com/FUMBBL/sound/ping.mp3" type="audio/mpeg">
+            <source src="https://fumbbl.com/FUMBBL/sound/ping.ogg" type="audio/ogg">
+        </audio>
     </div>
 </template>
 
@@ -71,6 +75,10 @@ import GameFinderHelpers from "../include/GameFinderHelpers";
         },
         hiddenCoaches: {
             type: Array,
+            required: true
+        },
+        audioEnabled: {
+            type: Boolean,
             required: true
         }
     },
@@ -165,6 +173,9 @@ export default class OffersComponent extends Vue {
                 }
 
                 if (!processed) {
+                    if (newOffer.external) {
+                        this.playSound('audionewexternaloffer');
+                    }
                     this.$props.offers.unshift(newOffer);
                 }
             }
@@ -296,6 +307,13 @@ export default class OffersComponent extends Vue {
 
     public setUiUpdatesPaused(isPaused: boolean) {
         this.uiUpdatesPaused = isPaused;
+    }
+
+    private playSound(audioElementId) {
+        if (this.$props.audioEnabled) {
+            const audioElement = document.getElementById(audioElementId);
+            (audioElement as HTMLAudioElement).play();
+        }
     }
 }
 </script>

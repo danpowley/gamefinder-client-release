@@ -1,5 +1,6 @@
 import Axios from "axios";
 import IBackendApi from "./IBackendApi"
+import { UserSettings } from "./Interfaces";
 
 export default class FumbblApi implements IBackendApi {
     public async activate(): Promise<void> {
@@ -53,4 +54,15 @@ export default class FumbblApi implements IBackendApi {
     public startGame(myTeamId: number, opponentTeamId: number): void {
         Axios.post('/api/gamefinder/startgame/' + myTeamId + '/' + opponentTeamId);
     };
+
+    public async getUserSettings(): Promise<UserSettings> {
+        // backend not implemented
+        return {
+            audio: true,
+        };
+    }
+
+    public updateUserSetting(settingKey: string, settingValue: boolean | string | number): void {
+        // not implemented
+    }
 }

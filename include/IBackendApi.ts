@@ -1,3 +1,5 @@
+import { UserSettings } from "./Interfaces";
+
 export default interface IBackendApi {
     activate(): Promise<void>;
 
@@ -22,4 +24,8 @@ export default interface IBackendApi {
     cancelOffer(myTeamId: number, opponentTeamId: number): void;
 
     startGame(myTeamId: number, opponentTeamId: number): void;
+
+    getUserSettings(): Promise<UserSettings>;
+
+    updateUserSetting(settingKey: string, settingValue: boolean | string | number);
 }

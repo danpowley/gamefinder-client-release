@@ -4,6 +4,12 @@
             <a href="#" class="closemodal" @click.prevent="close">&times;</a>
             <div class="settingstitle">Gamefinder settings for ALL teams</div>
             <div class="settingssection">
+                <div class="title"><strong>Audio settings</strong></div>
+                <div>
+                    <input type="checkbox" v-model="userSettings.audio" @change="updateAudioSetting" id="updatesettingaudio"> <label for="updatesettingaudio">Sound alerts enabled.</label>
+                </div>
+            </div>
+            <div class="settingssection">
                 <div class="title"><strong>Hidden coaches:</strong></div>
                 <template v-if="hiddenCoaches.length === 0">
                     <div>No coaches currently hidden.</div>
@@ -19,6 +25,8 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
+import GameFinderHelpers from '../include/GameFinderHelpers';
+import IBackendApi from "../include/IBackendApi";
 
 @Component({
     props: {
@@ -29,11 +37,21 @@ import Component from 'vue-class-component';
         hiddenCoaches: {
             type: Array,
             required: true
+        },
+        userSettings: {
+            validator: function (userSettings) {
+                return typeof userSettings === 'object' || userSettings === null;
+            }
         }
     }
 })
 export default class SettingsComponent extends Vue {
+    private backendApi: IBackendApi | null = null;
     public coachNameToHide: string = '';
+
+    mounted() {
+        this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
+    }
 
     public unhideCoach(id: number) {
         this.$emit('unhide-coach', id);
@@ -41,6 +59,10 @@ export default class SettingsComponent extends Vue {
 
     public close() {
         this.$emit('close-modal');
+    }
+
+    public updateAudioSetting() {
+        this.backendApi.updateUserSetting('audio', this.$props.userSettings.audio);
     }
 }
 </script>

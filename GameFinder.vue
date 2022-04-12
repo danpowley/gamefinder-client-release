@@ -93,6 +93,7 @@
                     :coach-name="coachName"
                     :my-teams="me.teams"
                     :hidden-coaches="hiddenCoaches"
+                    :audio-enabled="userSettings ? userSettings.audio : true"
                     @hide-match="handleHideMatch"
                     @show-dialog="handleShowDialog"
                     @launch-game="handleLaunchGame"></offers>
@@ -128,6 +129,7 @@
         <settings
             :is-open="modalSettingsShow"
             :hidden-coaches="hiddenCoaches"
+            :user-settings="userSettings"
             @unhide-coach="handleUnhideCoach"
             @close-modal="closeModal"></settings>
 
@@ -156,6 +158,7 @@ import OpponentsComponent from "./components/Opponents.vue";
 import StateUpdatesPausedComponent from "./components/StateUpdatesPaused.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
+import { UserSettings } from "./include/Interfaces";
 
 @Component({
     components: {
@@ -178,6 +181,7 @@ export default class GameFinder extends Vue {
     public coachName: string | null = null;
     public display: 'LFG' | 'TEAMS' = 'LFG';
     public featureFlags = {blackbox: false, teamSettings: false};
+    public userSettings: UserSettings | null = null;
 
     public secondsBetweenGetStateCalls: number = 1;
     public stateUpdatesArePaused: boolean = false;
@@ -214,6 +218,7 @@ export default class GameFinder extends Vue {
 
     async mounted() {
         await this.backendApi.activate();
+        this.userSettings = await this.backendApi.getUserSettings();
 
         this.refresh();
 
