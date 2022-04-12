@@ -309,6 +309,7 @@ export default class GameFinder extends Vue {
 
     public async showLfg() {
         await this.backendApi.activate();
+        await this.getState();
 
         // always select if only 1 team
         if (this.me.teams.length === 1) {
@@ -316,9 +317,7 @@ export default class GameFinder extends Vue {
             this.selectedOwnTeam = onlyTeam;
         }
 
-        this.refresh();
-
-        setTimeout(() => this.display = 'LFG', 3000);
+        this.display = 'LFG'
     }
 
     public async showTeams() {

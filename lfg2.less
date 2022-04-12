@@ -43,6 +43,20 @@
     #lfgteamswrapper {
       padding: 0;
 
+      .divisionheader {
+        font-weight: bold;
+        font-size: 11pt;
+        border-bottom: solid @Jet 2px;
+        margin-top: 10px;
+        padding-left: 6px;
+      }
+
+      .leagueheader {
+        border-bottom: solid @Jet 1px;
+        margin-top: 6px;
+        padding-left: 6px;
+      }
+
       .lfgteam {
         border-bottom: solid @Forest 1px;
         height: 38px;
@@ -60,7 +74,7 @@
         }
 
         .teamdetails {
-          max-width: 400px;
+          max-width: 500px;
           flex-grow: 1;
 
           .teamname {
@@ -70,17 +84,6 @@
 
           .teaminfo {
             font-size: 9pt;
-            font-style: oblique;
-          }
-        }
-
-        .division {
-          width: 200px;
-          margin-right: 10px;
-          text-align: right;
-          display: inline;
-          float: right;
-          .league {
             font-style: oblique;
           }
         }
@@ -572,8 +575,18 @@
       }
     }
 
+    .divisionheader {
+      font-size: 10pt;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .leagueheader {
+      margin-left: 10px;
+    }
+
     .team {
-      margin-left: 1em;
+      margin-left: 10px;
       display: flex;
       border: solid @OldLace 1px;
 

@@ -3,18 +3,20 @@
         <div class="header">Select Teams</div>
         <div class="content" id="lfgteamswrapper">
             <div class="lfgList">
-                <div v-for="team in teams" :key="team.id" class="lfgteam">
-                    <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
-                    <img :src="getTeamLogoUrl(team)" />
-                    <div class="teamdetails">
-                        <div class="teamname">{{ team.name }}</div>
-                        <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                <template v-for="team in teams">
+                    <div :key="team.id">
+                        <div v-if="teamsShowDivisionLeagueHeader && teamsShowDivisionLeagueHeader['team' + team.id].showDivisionHeader" class="divisionheader">{{ team.division }}</div>
+                        <div v-if="teamsShowDivisionLeagueHeader && teamsShowDivisionLeagueHeader['team' + team.id].showLeagueHeader" class="leagueheader">League teams for <strong>{{ team.league.name }}</strong></div>
+                        <div class="lfgteam">
+                            <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
+                            <img :src="getTeamLogoUrl(team)" />
+                            <div class="teamdetails">
+                                <div class="teamname">{{ team.name }}</div>
+                                <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="division">
-                        <div>{{ team.division }}</div>
-                        <div v-if="team.league !== null" class="league">{{ team.league.name }}</div>
-                    </div>
-                </div>
+                </template>
             </div>
             <div class="controls">
                 <div id="selectall">
@@ -56,6 +58,7 @@ export default class LfgTeamsComponent extends Vue {
     public teams: any[] = [];
     public checked: boolean[] = [];
     public activateTeamsButtonClicked: boolean = false;
+    public teamsShowDivisionLeagueHeader: any | null = null;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -72,6 +75,7 @@ export default class LfgTeamsComponent extends Vue {
     private async reloadTeams() {
         const teams = await this.backendApi.allTeams(this.$props.coachName);
         teams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
+        this.teamsShowDivisionLeagueHeader = GameFinderHelpers.getTeamsShowDivisionLeagueHeader(teams);
         this.teams = teams;
 
         this.checked = teams.filter(GameFinderPolicies.teamIsLfg).map((team) => team.id);

@@ -20,4 +20,29 @@ export default class GameFinderHelpers {
         // @christer using absolute url here, as I don't have the icons locally.
         return 'https://fumbbl.com/i/' + teamLogoId;
     }
+
+    public static getTeamsShowDivisionLeagueHeader(teams: any[]): any {
+        let previousDivision = false;
+        let previousLeague = false;
+        const allTeamHeadings = {};
+        for (let team of teams) {
+            const teamHeadings = {
+                showDivisionHeader: false,
+                showLeagueHeader: false,
+            };
+
+            if (previousDivision !== team.division) {
+                previousDivision = team.division;
+                teamHeadings.showDivisionHeader = true;
+            }
+
+            if (team.division === 'League' && previousLeague !== team.league.name) {
+                previousLeague = team.league.name;
+                teamHeadings.showLeagueHeader = true;
+            }
+
+            allTeamHeadings['team' + team.id] = teamHeadings;
+        }
+        return allTeamHeadings;
+    }
 }

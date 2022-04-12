@@ -24,47 +24,53 @@
                 <span v-show="! isExpanded(opponent)"><a href="#" class="hidecoach" @click.prevent="hideCoach({id: opponent.id, name: opponent.name, ranking: opponent.ranking})">hide</a></span>
             </div>
             <div v-show="isExpanded(opponent)">
-                <div v-for="oppTeam in opponent.teams" v-if="oppTeam.visible && ! inHideMatchQueue(oppTeam.id, 300)" :key="oppTeam.id" class="team" :class="{wholeteamclickable: ! isOwnTeamSelected, fadeout: inHideMatchQueue(oppTeam.id, null)}" @click.prevent="() => {! isOwnTeamSelected ? openModal('ROSTER', {team: oppTeam}): null;}">
-                    <div class="logo">
-                        <img :src="getTeamLogoUrl(oppTeam)" />
-                    </div>
-                    <div class="details">
-                        <div class="name">
-                            <span :class="{nameoffhover: isOwnTeamSelected}">{{ abbreviate(oppTeam.name, 55) }}</span>
-                            <a v-if="isOwnTeamSelected" class="nameonhover" href="#" @click.prevent="openModal('ROSTER', {team: oppTeam})">{{ abbreviate(oppTeam.name, 55) }}</a>
-                        </div>
-                        <div class="info">
-                            <span v-show="isOfferedBySelectedOwnTeam(oppTeam)" class="offeredtag">Offered</span>
-                            <span title="Seasons and games played">S{{ oppTeam.seasonInfo.currentSeason }}:G{{ oppTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span> {{ oppTeam.teamValue / 1000 }}k {{ oppTeam.roster.name }}
-                        </div>
-                    </div>
-                    <div class="links">
-                        <div>
-                            <template v-if="isOwnTeamSelected">
-                                <template v-if="isOfferedBySelectedOwnTeam(oppTeam)">
-                                    <span>Offered / </span>
-                                </template>
-                                <template v-else>
-                                    <a href="#" @click.prevent="sendOffer(oppTeam)">Send Offer</a> / 
-                                </template>
-                                <a href="#" @click.prevent="hideMatch(oppTeam.id)">Hide Match</a>
-                            </template>
-                        </div>
-                    </div>
-                    <div v-if="isOwnTeamSelected" class="selectedownteam">
-                        <div class="details">
-                            <div class="name">
-                                {{ abbreviate(selectedOwnTeam.name, 20) }}
+                <template v-for="oppTeam in opponent.teams" v-if="oppTeam.visible && ! inHideMatchQueue(oppTeam.id, 300)">
+                    <div :key="oppTeam.id">
+                        <div v-if="!isOwnTeamSelected && opponent.teamsShowDivisionLeagueHeader['team' + oppTeam.id].showDivisionHeader" class="divisionheader">{{ oppTeam.division }}</div>
+                        <div v-if="!isOwnTeamSelected && opponent.teamsShowDivisionLeagueHeader['team' + oppTeam.id].showLeagueHeader" class="leagueheader">League teams for <strong>{{ oppTeam.league.name }}</strong></div>
+                        <div class="team" :class="{wholeteamclickable: ! isOwnTeamSelected, fadeout: inHideMatchQueue(oppTeam.id, null)}" @click.prevent="() => {! isOwnTeamSelected ? openModal('ROSTER', {team: oppTeam}): null;}">
+                            <div class="logo">
+                                <img :src="getTeamLogoUrl(oppTeam)" />
                             </div>
-                            <div class="info">
-                                {{ selectedOwnTeam.roster.name }} {{ selectedOwnTeam.teamValue / 1000 }}k
+                            <div class="details">
+                                <div class="name">
+                                    <span :class="{nameoffhover: isOwnTeamSelected}">{{ abbreviate(oppTeam.name, 55) }}</span>
+                                    <a v-if="isOwnTeamSelected" class="nameonhover" href="#" @click.prevent="openModal('ROSTER', {team: oppTeam})">{{ abbreviate(oppTeam.name, 55) }}</a>
+                                </div>
+                                <div class="info">
+                                    <span v-show="isOfferedBySelectedOwnTeam(oppTeam)" class="offeredtag">Offered</span>
+                                    <span title="Seasons and games played">S{{ oppTeam.seasonInfo.currentSeason }}:G{{ oppTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span> {{ oppTeam.teamValue / 1000 }}k {{ oppTeam.roster.name }}
+                                </div>
+                            </div>
+                            <div class="links">
+                                <div>
+                                    <template v-if="isOwnTeamSelected">
+                                        <template v-if="isOfferedBySelectedOwnTeam(oppTeam)">
+                                            <span>Offered / </span>
+                                        </template>
+                                        <template v-else>
+                                            <a href="#" @click.prevent="sendOffer(oppTeam)">Send Offer</a> / 
+                                        </template>
+                                        <a href="#" @click.prevent="hideMatch(oppTeam.id)">Hide Match</a>
+                                    </template>
+                                </div>
+                            </div>
+                            <div v-if="isOwnTeamSelected" class="selectedownteam">
+                                <div class="details">
+                                    <div class="name">
+                                        {{ abbreviate(selectedOwnTeam.name, 20) }}
+                                    </div>
+                                    <div class="info">
+                                        {{ selectedOwnTeam.roster.name }} {{ selectedOwnTeam.teamValue / 1000 }}k
+                                    </div>
+                                </div>
+                                <div class="logo">
+                                    <img :src="getTeamLogoUrl(selectedOwnTeam)" />
+                                </div>
                             </div>
                         </div>
-                        <div class="logo">
-                            <img :src="getTeamLogoUrl(selectedOwnTeam)" />
-                        </div>
                     </div>
-                </div>
+                </template>
             </div>
         </div>
         <div v-show="hiddenCoachCount > 0" class="hiddencoachcount"><a href="#" class="muted" @click.prevent="openModal('SETTINGS', {})">+{{ hiddenCoachCount }} total hidden coaches</a></div>
@@ -76,6 +82,7 @@ import Vue from "vue";
 import Component from 'vue-class-component';
 import { Util } from '../../../core/util';
 import GameFinderHelpers from '../include/GameFinderHelpers';
+import GameFinderPolicies from "../include/GameFinderPolicies";
 import IBackendApi from "../include/IBackendApi";
 import { Coach } from "../include/Interfaces";
 
@@ -279,6 +286,10 @@ export default class OpponentsComponent extends Vue {
 
     private sortOpponents() {
         this.opponents.sort((a,b) => a.name.localeCompare(b.name));
+        for (const opponent of this.opponents) {
+            opponent.teams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
+            opponent.teamsShowDivisionLeagueHeader = GameFinderHelpers.getTeamsShowDivisionLeagueHeader(opponent.teams);
+        }
     }
 
     private processHideMatchQueue() {
