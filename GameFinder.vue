@@ -95,6 +95,7 @@
                     :hidden-coaches="userSettings ? userSettings.hiddenCoaches : []"
                     :audio-enabled="userSettings ? userSettings.audio : true"
                     @hide-match="handleHideMatch"
+                    @open-modal="openModal"
                     @show-dialog="handleShowDialog"
                     @launch-game="handleLaunchGame"></offers>
             </div>

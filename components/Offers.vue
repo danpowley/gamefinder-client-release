@@ -10,7 +10,7 @@
                     <div class="icon cancel" @click.prevent="cancelOffer(offer)">&#x2718;</div>
                     <div class="offeredteam home">
                         <div class="name">
-                            {{ offer.home.team }}
+                            <a href="#" @click.prevent="openModal('ROSTER', {team: offer.home.fullTeamObject})">{{ offer.home.team }}</a>
                         </div>
                         <div class="coach">
                             {{ offer.home.coach.name }} ({{ offer.home.coach.rating }})
@@ -28,7 +28,7 @@
                             {{ offer.away.coach.name }} ({{ offer.away.coach.rating }})
                         </div>
                         <div class="name">
-                            {{ offer.away.team }}
+                            <a href="#" @click.prevent="openModal('ROSTER', {team: offer.away.fullTeamObject})">{{ offer.away.team }}</a>
                         </div>
                     </div>
                 </div>
@@ -248,6 +248,7 @@ export default class OffersComponent extends Vue {
                 roster: offerData.team1.roster,
                 tv: (offerData.team1.teamValue / 1000) + 'k',
                 started: offerData.coachNamesStarted.includes(offerData.team1.coach.name),
+                fullTeamObject: offerData.team1,
             },
             away: {
                 id: offerData.team2.id,
@@ -256,6 +257,7 @@ export default class OffersComponent extends Vue {
                 roster: offerData.team2.roster,
                 tv: (offerData.team2.teamValue / 1000) + 'k',
                 started: offerData.coachNamesStarted.includes(offerData.team2.coach.name),
+                fullTeamObject: offerData.team2,
             }
         };
 
@@ -307,6 +309,10 @@ export default class OffersComponent extends Vue {
 
     public setUiUpdatesPaused(isPaused: boolean) {
         this.uiUpdatesPaused = isPaused;
+    }
+
+    public openModal(name: string, modalSettings: any) {
+        this.$emit('open-modal', name, modalSettings);
     }
 
     private playSound(audioElementId) {
