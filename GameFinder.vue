@@ -92,7 +92,7 @@
                     :offers="offers"
                     :coach-name="coachName"
                     :my-teams="me.teams"
-                    :hidden-coaches="hiddenCoaches"
+                    :hidden-coaches="userSettings ? userSettings.hiddenCoaches : []"
                     :audio-enabled="userSettings ? userSettings.audio : true"
                     @hide-match="handleHideMatch"
                     @show-dialog="handleShowDialog"
@@ -113,7 +113,7 @@
                     :opponent-map="opponentMap"
                     :selected-own-team="selectedOwnTeam"
                     :selected-own-team-offered-team-ids="selectedOwnTeamOfferedTeamIds"
-                    :hidden-coach-count="hiddenCoaches.length"
+                    :hidden-coach-count="userSettings ? userSettings.hiddenCoaches.length : 0"
                     @refresh="refresh"
                     @hide-match="handleHideMatch"
                     @hide-coach="handleHideCoach"
@@ -128,7 +128,6 @@
 
         <settings
             :is-open="modalSettingsShow"
-            :hidden-coaches="hiddenCoaches"
             :user-settings="userSettings"
             @unhide-coach="handleUnhideCoach"
             @close-modal="closeModal"></settings>
@@ -158,7 +157,7 @@ import OpponentsComponent from "./components/Opponents.vue";
 import StateUpdatesPausedComponent from "./components/StateUpdatesPaused.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
-import { UserSettings } from "./include/Interfaces";
+import { Coach, UserSettings } from "./include/Interfaces";
 
 @Component({
     components: {
@@ -206,8 +205,6 @@ export default class GameFinder extends Vue {
     public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
     public modalTeamSettingsTeam: any | null = null;
     public modalSettingsShow: boolean = false;
-
-    public hiddenCoaches: {id: number, name: string}[] = [];
 
     async beforeMount() {
         const appElement = document.getElementById("vuecontent");
@@ -287,7 +284,6 @@ export default class GameFinder extends Vue {
                 const opponentTeamId = myTeamIsTeam1 ? match.team2.id : match.team1.id;
                 const opponentCoachId = myTeamIsTeam1 ? match.team2.coach.id : match.team1.coach.id;
 
-                // @christer: hidden coaches should be handled server side
                 if (! this.isCoachHidden(opponentCoachId)) {
                     for (const myTeam of myTeams) {
                         if (myTeam.id === myTeamId) {
@@ -383,8 +379,8 @@ export default class GameFinder extends Vue {
     private refreshOpponentVisibility() {
         this.opponentMap.forEach(opponent => {
             let opponentVisible = true;
-            for (const coachDetails of this.hiddenCoaches) {
-                if (coachDetails.id === opponent.id) {
+            for (const coach of this.userSettings.hiddenCoaches) {
+                if (coach.id === opponent.id) {
                     opponentVisible = false;
                     break;
                 }
@@ -488,17 +484,19 @@ export default class GameFinder extends Vue {
         }
     }
 
-    public handleHideCoach(id: number, name: string): void {
-        this.hiddenCoaches.push({id: id, name: name});
+    public handleHideCoach(coach: Coach): void {
+        this.userSettings.hiddenCoaches.push(coach);
         this.refreshOpponentVisibility();
+        this.backendApi.hideCoach(coach.name);
     }
 
-    public handleUnhideCoach(id: number): void {
-        if (! this.isCoachHidden(id)) {
+    public handleUnhideCoach(coach: Coach): void {
+        if (! this.isCoachHidden(coach.id)) {
             return;
         }
-        this.hiddenCoaches.splice(this.getHiddenCoachIndex(id), 1);
+        this.userSettings.hiddenCoaches.splice(this.getHiddenCoachIndex(coach.id), 1);
         this.refreshOpponentVisibility();
+        this.backendApi.unhideCoach(coach.name);
     }
 
     public handleShowDialog(startDialogOffer: any | null): void {
@@ -529,7 +527,7 @@ export default class GameFinder extends Vue {
     }
 
     private getHiddenCoachIndex(id: number): number {
-        return this.hiddenCoaches.findIndex((coachDetails) => coachDetails.id === id);
+        return this.userSettings.hiddenCoaches.findIndex((coach) => coach.id === id);
     }
 
     private isCoachHidden(id: number): boolean {

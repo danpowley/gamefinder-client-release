@@ -27,5 +27,9 @@ export default interface IBackendApi {
 
     getUserSettings(): Promise<UserSettings>;
 
-    updateUserSetting(settingKey: string, settingValue: boolean | string | number);
+    updateUserSetting(settingKey: string, settingValue: boolean | string | number): void;
+
+    hideCoach(coachName: string);
+
+    unhideCoach(coachName: string);
 }

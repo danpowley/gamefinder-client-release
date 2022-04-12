@@ -11,7 +11,7 @@
         </div>
         <div v-show="visibleOpponents.length === 0">No opponents available.</div>
         <div v-for="opponent in visibleOpponents" :key="opponent.id" class="opponent">
-            <div class="coach" :class="{fadeout: fadeOutId === 'coach' + opponent.id}">
+            <div class="coach" :class="{fadeout: latestHiddenCoachId === opponent.id}">
                 <a class="disclosure" @click.prevent="expandOpponent(opponent)" href="#">
                     <span class="showhideicon" v-if="isExpanded(opponent)">&#x25bc;</span>
                     <span class="showhideicon" v-else>&#x25b6;</span>
@@ -21,7 +21,7 @@
                 <span class="ranking">
                     {{ opponent.ranking }}
                 </span>
-                <span v-show="! isExpanded(opponent)"><a href="#" class="hidecoach" @click.prevent="hideCoach(opponent.id, opponent.name)">hide</a></span>
+                <span v-show="! isExpanded(opponent)"><a href="#" class="hidecoach" @click.prevent="hideCoach({id: opponent.id, name: opponent.name, ranking: opponent.ranking})">hide</a></span>
             </div>
             <div v-show="isExpanded(opponent)">
                 <div v-for="oppTeam in opponent.teams" v-if="oppTeam.visible && ! inHideMatchQueue(oppTeam.id, 300)" :key="oppTeam.id" class="team" :class="{wholeteamclickable: ! isOwnTeamSelected, fadeout: inHideMatchQueue(oppTeam.id, null)}" @click.prevent="() => {! isOwnTeamSelected ? openModal('ROSTER', {team: oppTeam}): null;}">
@@ -77,6 +77,7 @@ import Component from 'vue-class-component';
 import { Util } from '../../../core/util';
 import GameFinderHelpers from '../include/GameFinderHelpers';
 import IBackendApi from "../include/IBackendApi";
+import { Coach } from "../include/Interfaces";
 
 @Component({
     props: {
@@ -133,7 +134,7 @@ export default class OpponentsComponent extends Vue {
     // allow UI to update when offers are made, but before the main selectedOwnTeamOfferedTeamIds prop array has updated
     private recentOffers: {myTeamId: number, opponentTeamId: number, offerDate: number}[] = [];
 
-    public fadeOutId: string | null = null;
+    public latestHiddenCoachId: number | null = null;
     public hideMatchQueue: {ownTeamId: number, opponentTeamId: number, hiddenDate: number, emitted: boolean}[] = [];
 
     async mounted() {
@@ -270,8 +271,8 @@ export default class OpponentsComponent extends Vue {
                 this.$emit('refresh');
                 this.recentOffers = [];
 
-                // clear the temporary fadeOutId so it doesn't keep hiding anything that is visible again
-                this.fadeOutId = null;
+                // clear the temporary latestHiddenCoachId so it doesn't keep hiding a coach that is visible again
+                this.latestHiddenCoachId = null;
             }
         }        
     }
@@ -410,26 +411,13 @@ export default class OpponentsComponent extends Vue {
         return false;
     }
 
-    public hideCoach(id: number, name: string) {
-        this.applyFade(
-            () => this.$emit('hide-coach', id, name),
-            'coach',
-            id,
-            500
-        );
-    }
+    public hideCoach(coach: Coach) {
+        this.latestHiddenCoachId = coach.id;
 
-    private applyFade(workload: Function, itemType: 'team' | 'coach', itemId: number, waitTime: number) {
-        let fadeOutId = itemType + itemId;
-
-        // set the fadeOutId so that the fade transition class is added to the element
-        this.fadeOutId = fadeOutId;
-
-        // allow the transition to happen before we raise the event that will instantly hide the element
+        // delay emitting the event to give time for the CSS transition to run
         setTimeout(() => {
-            // run the real workload
-            workload();
-        }, waitTime);
+            this.$emit('hide-coach', coach);
+        }, 500);
     }
 
     public openModal(name: string, modalSettings: any) {

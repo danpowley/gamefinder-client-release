@@ -59,10 +59,19 @@ export default class FumbblApi implements IBackendApi {
         // backend not implemented
         return {
             audio: true,
+            hiddenCoaches: [],
         };
     }
 
     public updateUserSetting(settingKey: string, settingValue: boolean | string | number): void {
+        // not implemented
+    }
+
+    public hideCoach(coachName: string): void {
+        // not implemented
+    }
+
+    public unhideCoach(coachName: string): void {
         // not implemented
     }
 }

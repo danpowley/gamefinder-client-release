@@ -11,11 +11,13 @@
             </div>
             <div class="settingssection">
                 <div class="title"><strong>Hidden coaches:</strong></div>
-                <template v-if="hiddenCoaches.length === 0">
+                <template v-if="userSettings.hiddenCoaches.length === 0">
                     <div>No coaches currently hidden.</div>
                 </template>
                 <template v-else>
-                    <div v-for="coachDetails in hiddenCoaches" :key="coachDetails.id"><a href="#" @click.prevent="unhideCoach(coachDetails.id)">unhide</a> {{ coachDetails.name }}</div>
+                    <div v-for="coach in userSettings.hiddenCoaches" :key="coach.id">
+                        <a href="#" @click.prevent="unhideCoach(coach)">unhide</a> {{ coach.name }}
+                    </div>
                 </template>
             </div>
         </div>
@@ -32,10 +34,6 @@ import IBackendApi from "../include/IBackendApi";
     props: {
         isOpen: {
             type: Boolean,
-            required: true
-        },
-        hiddenCoaches: {
-            type: Array,
             required: true
         },
         userSettings: {
