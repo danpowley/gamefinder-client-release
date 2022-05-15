@@ -1,4 +1,4 @@
-import { UserSettings } from "./Interfaces";
+import { GameFinderVar, UserSettings } from "./Interfaces";
 
 export default interface IBackendApi {
     activate(): Promise<void>;
@@ -27,9 +27,9 @@ export default interface IBackendApi {
 
     getUserSettings(): Promise<UserSettings>;
 
-    updateUserSetting(settingKey: string, settingValue: boolean | string | number): void;
+    setGameFinderVar(gameFinderVar: GameFinderVar, value: string): void;
 
-    hideCoach(coachName: string);
+    hideCoach(coachName: string): Promise<void>;
 
-    unhideCoach(coachName: string);
+    unhideCoach(coachName: string): Promise<void>;
 }

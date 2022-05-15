@@ -32,6 +32,10 @@ import IBackendApi from "../include/IBackendApi";
 
 @Component({
     props: {
+        isDevMode: {
+            type: Boolean,
+            required: true
+        },
         isOpen: {
             type: Boolean,
             required: true
@@ -59,8 +63,9 @@ export default class SettingsComponent extends Vue {
         this.$emit('close-modal');
     }
 
-    public updateAudioSetting() {
-        this.backendApi.updateUserSetting('audio', this.$props.userSettings.audio);
+    public async updateAudioSetting() {
+        await this.backendApi.setGameFinderVar('gamefinder.enableSound', this.$props.userSettings.audio ? 'Yes' : 'No');
+        this.$emit('user-settings-changed');
     }
 }
 </script>
