@@ -17,6 +17,44 @@
 #gamefinder {
   margin-top: 15px;
 
+  .zenmodeonly {
+    display: none;
+  }
+
+  &.zenmode {
+    .zenmodeonly {
+      display: inline;
+    }
+    #opponentslist .opponent .coach {
+      .coachname, .ranking {
+        display: none;
+      }
+    }
+    .team > .details {
+      .name, .seasonsgames, .teamvalue {
+        display: none;
+      }
+    }
+    .offeredteam.away {
+      .coach, .name {
+        visibility: hidden;
+      }
+      .desc .teamvalue {
+        display: none;
+      }
+    }
+    .rosterouter {
+      .rosterinner {
+        .displayteam {
+          display: none;
+        }
+        .rosteroffers {
+          width: 100%;
+        }
+      }
+    }
+  }
+
   .basicbox {
     margin: 0 0 10px 0;
 
@@ -561,6 +599,7 @@
         display: inline-block;
         line-height: 1em;
         margin-top: 3px;
+        margin-right: 3px;
         border-radius: 3px;
         border: solid @Quicksilver 1px;
       }
@@ -572,6 +611,7 @@
 
       a.hidecoach {
         color: @Quicksilver;
+        margin-left: 3px;
       }
     }
 

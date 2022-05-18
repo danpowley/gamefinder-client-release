@@ -22,7 +22,7 @@
                     <div class="timer" :style="{ width: (100 * offer.timeRemaining / offer.lifetime) + '%', left: (50 - 50 * offer.timeRemaining / offer.lifetime) + '%'}"></div>
                     <div class="offeredteam away">
                         <div class="desc">
-                            {{ offer.away.roster.name }} TV {{ offer.away.tv }}
+                            <span class="rostername">{{ offer.away.roster.name }}</span> <span class="teamvalue">TV {{ offer.away.tv }}</span> <span class="zenmodeonly">{{ getTvPercentDiff(offer.home.fullTeamObject.teamValue, offer.away.fullTeamObject.teamValue) }}% TV diff</span>
                         </div>
                         <div class="coach">
                             {{ offer.away.coach.name }} ({{ offer.away.coach.rating }})
@@ -320,6 +320,10 @@ export default class OffersComponent extends Vue {
             const audioElement = document.getElementById(audioElementId);
             (audioElement as HTMLAudioElement).play();
         }
+    }
+
+    public getTvPercentDiff(teamValue1: number, teamValue2: number): number {
+        return GameFinderHelpers.getTvPercentDiff(teamValue1, teamValue2);
     }
 }
 </script>

@@ -20,6 +20,12 @@
                     </div>
                 </template>
             </div>
+            <div class="settingssection">
+                <div class="title"><strong>Zen mode</strong></div>
+                <div>
+                    <input type="checkbox" v-model="userSettings.zenMode" @change="updateZenMode" id="updatezenmode"> <label for="updatezenmode">Zen mode enabled (hides most opponent info)</label>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -65,6 +71,11 @@ export default class SettingsComponent extends Vue {
 
     public async updateAudioSetting() {
         await this.backendApi.setGameFinderVar('gamefinder.enableSound', this.$props.userSettings.audio ? 'Yes' : 'No');
+        this.$emit('user-settings-changed');
+    }
+
+    public async updateZenMode() {
+        await this.backendApi.setGameFinderVar('gamefinder.zenMode', this.$props.userSettings.zenMode ? 'Yes' : 'No');
         this.$emit('user-settings-changed');
     }
 }

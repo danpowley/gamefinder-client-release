@@ -16,7 +16,8 @@
                     <span class="showhideicon" v-if="isExpanded(opponent)">&#x25bc;</span>
                     <span class="showhideicon" v-else>&#x25b6;</span>
                     <span class="teamcount" title="Teams listed for this opponent">{{ opponent.teams.filter((o) => o.visible).length }}</span>
-                    {{ opponent.name }}
+                    <span class="coachname">{{ opponent.name }}</span>
+                    <span class="zenmodeonly">Coach name hidden</span>
                 </a>
                 <span class="ranking">
                     {{ opponent.ranking }}
@@ -39,7 +40,7 @@
                                 </div>
                                 <div class="info">
                                     <span v-show="isOfferedBySelectedOwnTeam(oppTeam)" class="offeredtag">Offered</span>
-                                    <span title="Seasons and games played">S{{ oppTeam.seasonInfo.currentSeason }}:G{{ oppTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span> {{ oppTeam.teamValue / 1000 }}k {{ oppTeam.roster.name }}
+                                    <span class="seasonsgames" title="Seasons and games played">S{{ oppTeam.seasonInfo.currentSeason }}:G{{ oppTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span> <span class="teamvalue">{{ oppTeam.teamValue / 1000 }}k</span> <span class="rostername">{{ oppTeam.roster.name }}</span> <span v-if="isOwnTeamSelected" class="zenmodeonly">{{ getTvPercentDiff(selectedOwnTeam.teamValue, oppTeam.teamValue) }}% TV diff</span>
                                 </div>
                             </div>
                             <div class="links">
@@ -444,6 +445,10 @@ export default class OpponentsComponent extends Vue {
 
     public getTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team);
+    }
+
+    public getTvPercentDiff(teamValue1: number, teamValue2: number): number {
+        return GameFinderHelpers.getTvPercentDiff(teamValue1, teamValue2);
     }
 }
 </script>

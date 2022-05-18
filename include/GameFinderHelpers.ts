@@ -45,4 +45,11 @@ export default class GameFinderHelpers {
         }
         return allTeamHeadings;
     }
+
+    public static getTvPercentDiff(teamValue1: number, teamValue2: number): number {
+        const largerTeamValue = teamValue1 > teamValue2 ? teamValue1 : teamValue2;
+        const smallerTeamValue = teamValue1 === largerTeamValue ? teamValue2 : teamValue1;
+        const tvDiff = largerTeamValue - smallerTeamValue;
+        return Math.round((tvDiff / largerTeamValue) * 100);
+    }
 }

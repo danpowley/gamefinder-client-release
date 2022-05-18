@@ -1,5 +1,5 @@
 <template>
-    <div id="gamefinder">
+    <div id="gamefinder" :class="{zenmode: userSettings ? userSettings.zenMode : false}">
         <div class="getstateerrorbanner" v-show="stateUpdateErrorMessage">
             Gamefinder encountered an error whilst getting the latest game data, if this issue continues, please reload the page.
             <div>{{ stateUpdateErrorMessage }}</div>

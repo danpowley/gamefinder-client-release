@@ -29,7 +29,7 @@
             </div>
             <template v-if="! isMyTeam">
                 <div class="rosteroffers">
-                    <div class="title">Send offers:</div>
+                    <div class="title">Send offers <span class="zenmodeonly">against {{ rosterData.roster.name }}, see % TV diffs below:</span></div>
                     <template v-if="ownTeamsOfferable.length > 0">
                         <div style="margin-bottom: 10px;">Click any of the following teams to send an offer.</div>
                     </template>
@@ -46,7 +46,7 @@
                             </div>
                             <div class="info">
                                 <template v-if="! recentOffersSent.includes(myTeam.id)">
-                                    {{ myTeam.teamValue/1000 }}k {{ myTeam.roster.name }}
+                                    {{ myTeam.teamValue/1000 }}k {{ myTeam.roster.name }} <span class="zenmodeonly">({{ getTvPercentDiff(rosterData.teamValue, myTeam.teamValue) }}% TV diff)</span>
                                 </template>
                                 <template v-else>
                                     <span class="offeredtag">Offered</span>
@@ -172,6 +172,10 @@ export default class RosterComponent extends Vue {
     public getPlayerIconStyle(positionId: number, positionIcons: any): string {
         const positionIconId = positionIcons[positionId];
         return `width: 28px; height: 28px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconId}") repeat scroll 0px 0px;'"`;
+    }
+
+    public getTvPercentDiff(teamValue1: number, teamValue2: number): number {
+        return GameFinderHelpers.getTvPercentDiff(teamValue1, teamValue2);
     }
 }
 </script>
