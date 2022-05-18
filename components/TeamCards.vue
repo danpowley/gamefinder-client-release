@@ -4,7 +4,7 @@
             :class="{active: myTeam.id === selectedOwnTeamId}"
             :title="myTeam.name + '\n' + myTeam.roster.name + '\n' + myTeam.division + (myTeam.league !== null && myTeam.league.name ? ' (' + myTeam.league.name + ')' : '')">
             <img class="logo" :src="getTeamLogoUrl(myTeam)">
-            <div class="name">{{ myTeam.name }}</div>
+            <div class="name"><span v-if="myTeam.isInTournament" title="This team is currently in a tournament.">🏆 </span>{{ myTeam.name }}</div>
             <div class="line"></div>
             <div class="opponentcount" :title="myTeam.allow.length + ' possible opponents.'">Opp:{{ myTeam.allow.length > 99 ? 99 : myTeam.allow.length }}</div>
             <div class="new" title="You have new opponents to view." v-show="myTeam.hasUnreadItems">&#9679</div>

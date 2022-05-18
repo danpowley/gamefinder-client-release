@@ -35,6 +35,7 @@
                             </div>
                             <div class="details">
                                 <div class="name">
+                                    <span v-if="oppTeam.isInTournament" title="This team is currently in a tournament.">🏆 </span>
                                     <span :class="{nameoffhover: isOwnTeamSelected}">{{ abbreviate(oppTeam.name, 55) }}</span>
                                     <a v-if="isOwnTeamSelected" class="nameonhover" href="#" @click.prevent="openModal('ROSTER', {team: oppTeam})">{{ abbreviate(oppTeam.name, 55) }}</a>
                                 </div>
