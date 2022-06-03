@@ -1,8 +1,12 @@
 <template>
     <div id="gamefinder" :class="{zenmode: userSettings ? userSettings.zenMode : false}">
-        <div class="getstateerrorbanner" v-show="stateUpdateErrorMessage">
+        <div class="errorbanner" v-show="stateUpdateErrorMessage">
             Gamefinder encountered an error whilst getting the latest game data, if this issue continues, please reload the page.
-            <div>{{ stateUpdateErrorMessage }}</div>
+            <div><strong>Error details: </strong>{{ stateUpdateErrorMessage }}</div>
+        </div>
+        <div class="errorbanner" v-show="schedulingErrorMessage">
+            Sorry, an error occurred while scheduling your game, please reload this page to restart your search.
+            <div><strong>Error details: </strong>{{ schedulingErrorMessage }}</div>
         </div>
 
         <!-- We use v-if here because we want the component to be mounted each time display changes and force a reload of team data -->
@@ -66,7 +70,7 @@
         <div id="launchgame" class="basicbox" v-if="launchGameOffer !== null">
             <div class="header">Game launched</div>
             <div class="content">
-                Good luck, your download should start automatically (but it won't just yet, we're just testing).
+                Good luck, your download should start automatically (you can also join from your coach home page).
             </div>
         </div>
         <div id="gamefindergrid" :class="{manyteamsgrid: me.teams.length > 4, fewteamsgrid: me.teams.length <= 4}" v-if="launchGameOffer === null" v-show="startDialogOffer === null && display === 'LFG'">
@@ -97,7 +101,9 @@
                     @hide-match="handleHideMatch"
                     @open-modal="openModal"
                     @show-dialog="handleShowDialog"
-                    @launch-game="handleLaunchGame"></offers>
+                    @launch-game="handleLaunchGame"
+                    @download-jnlp="handleDownloadJnlp"
+                    @scheduling-error="handleSchedulingError"></offers>
             </div>
             <div id="opponents">
                 <selectedownteam
@@ -188,6 +194,7 @@ export default class GameFinder extends Vue {
     public secondsBetweenGetStateCalls: number = 1;
     public stateUpdatesArePaused: boolean = false;
     public stateUpdateErrorMessage: string | null = null;
+    public schedulingErrorMessage: string | null = null;
 
     public startDialogOffer:any = null;
     public launchGameOffer:any = null;
@@ -511,6 +518,16 @@ export default class GameFinder extends Vue {
         if (launchGameOffer !== null) {
             this.launchGameOffer = launchGameOffer;
         }
+    }
+
+    public handleDownloadJnlp(myScheduledTeamId: number | null): void {
+        if (myScheduledTeamId) {
+            window.location.href = `https://fumbbl.com/ffblive.jnlp?id=${myScheduledTeamId}`;
+        }
+    }
+
+    public handleSchedulingError(schedulingErrorMessage: string | null): void {
+        this.schedulingErrorMessage = schedulingErrorMessage;
     }
 
     public declineGame()
