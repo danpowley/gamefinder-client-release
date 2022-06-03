@@ -81,7 +81,6 @@ export default class FumbblApi implements IBackendApi {
             method: "post",
             url: '/api/coach/setvar/' + gameFinderVar,
             data: bodyFormData,
-            headers: { "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}` },
         });
     }
 
