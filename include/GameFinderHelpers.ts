@@ -36,7 +36,7 @@ export default class GameFinderHelpers {
                 teamHeadings.showDivisionHeader = true;
             }
 
-            if (team.division === 'League' && previousLeague !== team.league.name) {
+            if (team.division === 'League' && team.league && previousLeague !== team.league.name) {
                 previousLeague = team.league.name;
                 teamHeadings.showLeagueHeader = true;
             }
