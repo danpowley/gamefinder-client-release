@@ -247,7 +247,9 @@ export default class GameFinder extends Vue {
                 await this.getState();
                 this.stateUpdateErrorMessage = null;
             } catch (error) {
-                this.stateUpdateErrorMessage = (error as Error).name + ': ' + (error as Error).message;
+                setTimeout(() => {
+                    this.stateUpdateErrorMessage = (error as Error).name + ': ' + (error as Error).message;
+                }, 1000);
             }
 
             setTimeout(getStateWithSetTimeout, this.secondsBetweenGetStateCalls*1000);
