@@ -273,13 +273,17 @@ export default class GameFinder extends Vue {
         for(const coachTeams of matchesAndTeamsState.teams) {
             const coachName: string = coachTeams.name;
             if (coachName === this.coachName) {
-                // @christer: we should probably do a clone here
                 myTeams = coachTeams.teams;
                 break;
             }
         }
 
-        if (myTeams === null || myTeams.length === 0) {
+        if (myTeams === null) {
+            this.backendApi.activate();
+            return;
+        }
+
+        if (myTeams.length === 0) {
             this.me.teams = [];
             return;
         }
