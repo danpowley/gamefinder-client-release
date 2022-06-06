@@ -123,7 +123,6 @@ export default class OffersComponent extends Vue {
 
         let startDialogOffer = null;
         let launchGameOffer = null;
-        let downloadJnlpTeamId = null;
         let schedulingErrorMessage = null;
 
         for (const offer of this.$props.matches) {
@@ -145,11 +144,6 @@ export default class OffersComponent extends Vue {
                 startDialogOffer = offerCreated;
             }
 
-            const downloadJnlpReady = offer.clientId && offer.clientId !== 0;
-            if (downloadJnlpReady) {
-                downloadJnlpTeamId = offerCreated.home.id;
-            }
-
             if (offer.schedulingError) {
                 schedulingErrorMessage = offer.schedulingError;
             }
@@ -157,7 +151,6 @@ export default class OffersComponent extends Vue {
 
         this.$emit('show-dialog', startDialogOffer);
         this.$emit('launch-game', launchGameOffer);
-        this.$emit('download-jnlp', downloadJnlpTeamId);
         this.$emit('scheduling-error', schedulingErrorMessage);
     }
 
