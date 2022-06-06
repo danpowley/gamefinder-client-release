@@ -102,6 +102,7 @@
                     @open-modal="openModal"
                     @show-dialog="handleShowDialog"
                     @launch-game="handleLaunchGame"
+                    @download-jnlp="handleDownloadJnlp"
                     @scheduling-error="handleSchedulingError"></offers>
             </div>
             <div id="opponents">
@@ -529,9 +530,12 @@ export default class GameFinder extends Vue {
         // launchGameOffer cannot go back to null.
         if (launchGameOffer !== null) {
             this.launchGameOffer = launchGameOffer;
-            setTimeout(() => {
-                window.location.href = `https://fumbbl.com/ffblive.jnlp?id=${this.launchGameOffer.home.id}`;
-            }, 1000);
+        }
+    }
+
+    public handleDownloadJnlp(myScheduledTeamId: number | null): void {
+        if (myScheduledTeamId) {
+            window.location.href = `https://fumbbl.com/ffblive.jnlp?id=${myScheduledTeamId}`;
         }
     }
 
