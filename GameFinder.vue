@@ -72,8 +72,16 @@
             <div class="content">
                 <template v-if="schedulingErrorMessage">
                     <div>Sorry, a problem has occurred launching the game, please see the error banner above.</div>
-                    <p>Please use the button below to search again.</p>
-                    <button @click.prevent="continueAfterLaunch">Rejoin Gamefinder</button>
+                    <template v-if="!allowRejoinAfterDownload">
+                        <p>
+                            Please wait for 30 seconds for the failed offer to clear itself, then you'll be given
+                            a button to rejoin Gamefinder.
+                        </p>
+                    </template>
+                    <template v-else>
+                        <p>Please use the button below to search again.</p>
+                        <button @click.prevent="continueAfterLaunch">Rejoin Gamefinder</button>
+                    </template>
                 </template>
                 <template v-else>
                     Good luck, your download should start automatically (you can also join from your coach home page).
@@ -254,7 +262,9 @@ export default class GameFinder extends Vue {
         const getStateWithSetTimeout = async () => {
             let enableGetStatePolling = true;
 
-            if (this.downloadJnlpOffer && this.downloadJnlpOffer.timeRemaining <= 1000) {
+            const launchGameOfferTimedOut = this.launchGameOffer && this.launchGameOffer.timeRemaining <= 1000;
+            const downloadJnlpOfferTimedOut = this.downloadJnlpOffer && this.downloadJnlpOffer.timeRemaining <= 1000;
+            if (launchGameOfferTimedOut || downloadJnlpOfferTimedOut) {
                 this.allowRejoinAfterDownload = true;
                 enableGetStatePolling = false;
             } else if (this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - 10000) {
