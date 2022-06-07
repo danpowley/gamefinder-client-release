@@ -5,7 +5,7 @@
             <div><strong>Error details: </strong>{{ stateUpdateErrorMessage }}</div>
         </div>
         <div class="errorbanner" v-show="schedulingErrorMessage">
-            Sorry, an error occurred while scheduling your game, please reload this page to restart your search.
+            Sorry, an error occurred while scheduling your game.
             <div><strong>Error details: </strong>{{ schedulingErrorMessage }}</div>
         </div>
 
@@ -70,10 +70,22 @@
         <div id="launchgame" class="basicbox" v-if="launchGameOffer !== null">
             <div class="header">Game launched</div>
             <div class="content">
-                Good luck, your download should start automatically (you can also join from your coach home page).
+                <template v-if="schedulingErrorMessage">
+                    <div>Sorry, a problem has occurred launching the game, please see the error banner above.</div>
+                    <p>Please use the button below to search again.</p>
+                    <button @click.prevent="continueAfterLaunch">Rejoin Gamefinder</button>
+                </template>
+                <template v-else>
+                    Good luck, your download should start automatically (you can also join from your coach home page).
+                    <iframe :src="downloadJnlpOffer ? `https://fumbbl.com/ffblive.jnlp?id=${downloadJnlpOffer.home.id}` : ''" height="0" width="0" />
+                    <div v-if="allowRejoinAfterDownload">
+                        <p>You've now left the Gamefinder system, click the button below to rejoin.</p>
+                        <button @click.prevent="continueAfterLaunch">Rejoin Gamefinder</button>
+                    </div>
+                </template>
             </div>
         </div>
-        <div id="gamefindergrid" :class="{manyteamsgrid: me.teams.length > 4, fewteamsgrid: me.teams.length <= 4}" v-if="launchGameOffer === null" v-show="startDialogOffer === null && display === 'LFG'">
+        <div id="gamefindergrid" :class="{manyteamsgrid: me.teams.length > 4, fewteamsgrid: me.teams.length <= 4}" v-show="launchGameOffer === null && startDialogOffer === null && display === 'LFG'">
             <div class="overallstatus">
                 <span class="overallinfo">You have {{ me.teams.length }} team{{ me.teams.length === 1 ? '' : 's' }} looking for a game.</span>
                 <a class="chooseteamslink" href="#" @click.prevent="showTeams">Choose teams</a>
@@ -198,6 +210,8 @@ export default class GameFinder extends Vue {
 
     public startDialogOffer:any = null;
     public launchGameOffer:any = null;
+    public downloadJnlpOffer:any = null;
+    public allowRejoinAfterDownload: boolean = false;
 
     public selectedOwnTeam:any = null;
     public me:any = { teams: [] };
@@ -238,17 +252,20 @@ export default class GameFinder extends Vue {
         await this.getState();
 
         const getStateWithSetTimeout = async () => {
-            if (this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - 10000) {
-                this.stateUpdatesArePaused = true;
-                return;
-            }
+            let enableGetStatePolling = true;
 
-            if (this.launchGameOffer !== null) {
-                return;
+            if (this.downloadJnlpOffer && this.downloadJnlpOffer.timeRemaining <= 1000) {
+                this.allowRejoinAfterDownload = true;
+                enableGetStatePolling = false;
+            } else if (this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - 10000) {
+                this.stateUpdatesArePaused = true;
+                enableGetStatePolling = false;
             }
 
             try {
-                await this.getState();
+                if (enableGetStatePolling) {
+                    await this.getState();
+                }
                 this.stateUpdateErrorMessage = null;
             } catch (error) {
                 setTimeout(() => {
@@ -527,20 +544,21 @@ export default class GameFinder extends Vue {
     }
 
     public handleLaunchGame(launchGameOffer: any | null): void {
-        // launchGameOffer cannot go back to null.
         if (launchGameOffer !== null) {
             this.launchGameOffer = launchGameOffer;
         }
     }
 
-    public handleDownloadJnlp(myScheduledTeamId: number | null): void {
-        if (myScheduledTeamId) {
-            window.location.href = `https://fumbbl.com/ffblive.jnlp?id=${myScheduledTeamId}`;
+    public handleDownloadJnlp(downloadJnlpOffer: any | null): void {
+        if (downloadJnlpOffer !== null) {
+            this.downloadJnlpOffer = downloadJnlpOffer;
         }
     }
 
     public handleSchedulingError(schedulingErrorMessage: string | null): void {
-        this.schedulingErrorMessage = schedulingErrorMessage;
+        if (schedulingErrorMessage !== null) {
+            this.schedulingErrorMessage = schedulingErrorMessage;
+        }
     }
 
     public declineGame()
@@ -639,7 +657,16 @@ export default class GameFinder extends Vue {
     public async handleContinueSession() {
         this.stateUpdatesArePaused = false;
         await this.backendApi.activate();
-        this.beginGetStatePolling();
+        await this.getState();
+    }
+
+    public async continueAfterLaunch() {
+        this.launchGameOffer = null;
+        this.downloadJnlpOffer = null;
+        this.allowRejoinAfterDownload = false;
+        this.schedulingErrorMessage = null;
+        await this.backendApi.activate();
+        await this.getState();
     }
 }
 </script>

@@ -123,7 +123,7 @@ export default class OffersComponent extends Vue {
 
         let startDialogOffer = null;
         let launchGameOffer = null;
-        let downloadJnlpTeamId = null;
+        let downloadJnlpOffer = null;
         let schedulingErrorMessage = null;
 
         for (const offer of this.$props.matches) {
@@ -145,19 +145,24 @@ export default class OffersComponent extends Vue {
                 startDialogOffer = offerCreated;
             }
 
-            const downloadJnlpReady = offer.clientId && offer.clientId !== 0;
-            if (downloadJnlpReady) {
-                downloadJnlpTeamId = offerCreated.home.id;
+            if (offer.clientId && offer.clientId !== 0) {
+                downloadJnlpOffer = offerCreated;
             }
 
             if (offer.schedulingError) {
                 schedulingErrorMessage = offer.schedulingError;
             }
+
+            if (! schedulingErrorMessage) {
+                if (launchGameOffer && launchGameOffer.timeRemaining <= 1000 && downloadJnlpOffer === null) {
+                    schedulingErrorMessage = 'Failed to find clientId on offer within time limit.';
+                }
+            }
         }
 
         this.$emit('show-dialog', startDialogOffer);
         this.$emit('launch-game', launchGameOffer);
-        this.$emit('download-jnlp', downloadJnlpTeamId);
+        this.$emit('download-jnlp', downloadJnlpOffer);
         this.$emit('scheduling-error', schedulingErrorMessage);
     }
 
