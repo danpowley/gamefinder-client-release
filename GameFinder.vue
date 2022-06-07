@@ -550,6 +550,9 @@ export default class GameFinder extends Vue {
     }
 
     public handleShowDialog(startDialogOffer: any | null): void {
+        if (startDialogOffer !== null) {
+            this.closeModal();
+        }
         this.startDialogOffer = startDialogOffer;
     }
 
