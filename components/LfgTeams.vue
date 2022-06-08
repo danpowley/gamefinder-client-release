@@ -2,6 +2,18 @@
     <div id="lfgteams" class="basicbox" style="margin-top: 20px;">
         <div class="header">Select Teams</div>
         <div class="content" id="lfgteamswrapper">
+            <div class="controls">
+                <div class="selectall">
+                    <input type="checkbox" id="selectallteamsbegin" class="selectallteams" @change="toggleAll"/>
+                    <label for="selectallteamsbegin">Select All</label>
+                </div>
+                <template v-if="activateTeamsButtonClicked">
+                    Please wait, teams activating.
+                </template>
+                <template v-else>
+                    <input type="button" value="Activate teams" @click="showLfg" />
+                </template>
+            </div>
             <div class="lfgList">
                 <template v-for="team in teams">
                     <div :key="team.id">
@@ -19,15 +31,15 @@
                 </template>
             </div>
             <div class="controls">
-                <div id="selectall">
-                    <input type="checkbox" id="all" @change="toggleAll"/>
-                    <label for="all">Select All</label>
+                <div class="selectall">
+                    <input type="checkbox" id="selectallteamsend" class="selectallteams" @change="toggleAll"/>
+                    <label for="selectallteamsend">Select All</label>
                 </div>
                 <template v-if="activateTeamsButtonClicked">
                     Please wait, teams activating.
                 </template>
                 <template v-else>
-                    <input type="button" id="showlfg" value="Activate teams" @click="showLfg" />
+                    <input type="button" value="Activate teams" @click="showLfg" />
                 </template>
             </div>
         </div>
@@ -134,20 +146,26 @@ export default class LfgTeamsComponent extends Vue {
 
     private updateAllChecked()
     {
-        const allCheckbox:any = document.getElementById('all');
+        const allCheckboxes:any = document.getElementsByClassName('selectallteams');
 
         let allChecked = this.teams.length === this.checked.length;
         let allUnchecked = this.checked.length === 0;
 
         if (allUnchecked) {
-            allCheckbox.checked = false;
-            allCheckbox.indeterminate = false;
+            for (const allCheckbox of allCheckboxes) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = false;
+            }
         } else if (allChecked) {
-            allCheckbox.checked = true;
-            allCheckbox.indeterminate = false;
+            for (const allCheckbox of allCheckboxes) {
+                allCheckbox.checked = true;
+                allCheckbox.indeterminate = false;
+            }
         } else {
-            allCheckbox.checked = false;
-            allCheckbox.indeterminate = true;
+            for (const allCheckbox of allCheckboxes) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = true;
+            }
         }
     }
 
