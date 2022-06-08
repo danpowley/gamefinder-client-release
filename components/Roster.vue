@@ -9,7 +9,6 @@
                     </div>
                     <div class="details">
                         <div class="name">
-                            <!-- @christer absolute url used multiple times -->
                             <a class="teampagelink" :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="'Open team page for ' + rosterData.name + ' in a new tab.'">{{ rosterData.name }}</a> (<a class="coachpagelink" :href="'https://fumbbl.com/~' + rosterData.coach.name" target="_blank" :title="'Open coach page for ' + rosterData.coach.name + ' in a new tab'">{{ rosterData.coach.name }}</a>)
                         </div>
                         <div class="info">
@@ -20,7 +19,9 @@
                 <table cellspacing="0" cellpadding="0" width="100%">
                     <tr v-for="player in rosterData.players" :key="player.id">
                         <!-- @christer absolute url used -->
-                        <td :style="getPlayerIconStyle(player.positionId, rosterData.positionIcons)"></td>
+                        <td style="width: 45px;">
+                            <div :style="getPlayerIconStyle(player.positionId, rosterData.positionIcons)"></div>
+                        </td>
                         <td class="position">{{ player.position }}</td>
                         <td class="injuries">{{ player.injuries }}</td>
                         <td>{{ player.skills }}</td>
@@ -103,6 +104,7 @@ export default class RosterComponent extends Vue {
             this.ownTeamsOfferable = [];
             this.isMyTeam = false;
             this.recentOffersSent = [];
+
             return;
         }
 
@@ -130,7 +132,7 @@ export default class RosterComponent extends Vue {
             const rosterSettings = await this.backendApi.rosterSettings(rosterData.roster.id);
             const positionIcons = {};
             for (const position of rosterSettings.positions) {
-                positionIcons[position.id] = position.icon;
+                positionIcons[position.id] = {iconId: position.icon, iconSize: await this.getIconSize(position.icon)};
             }
             rosterData.positionIcons = positionIcons;
 
@@ -157,6 +159,32 @@ export default class RosterComponent extends Vue {
         return data.roster;
     }
 
+    public async getIconSize(positionIconId: number): Promise<number> {
+        const imageDimensions = (imageUrl): Promise<{width: number, height: number}> =>
+            new Promise((resolve, reject) => {
+                const img = new Image()
+
+                img.onload = () => {
+                    const { naturalWidth: width, naturalHeight: height } = img;
+                    resolve({ width, height });
+                }
+
+                img.onerror = () => {
+                    reject('There was some problem with the image.');
+                }
+
+                img.src = imageUrl;
+            }
+        );
+
+        try {
+            const dimensions = await imageDimensions(`https://fumbbl.com/i/${positionIconId}`);
+            return dimensions.width / 4;
+        } catch(error) {
+            return 30;
+        }
+    }
+
     public sendOffer(myTeam): void {
         if (this.recentOffersSent.includes(myTeam.id)) {
             return;
@@ -170,8 +198,8 @@ export default class RosterComponent extends Vue {
     }
 
     public getPlayerIconStyle(positionId: number, positionIcons: any): string {
-        const positionIconId = positionIcons[positionId];
-        return `width: 28px; height: 28px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconId}") repeat scroll 0px 0px;'"`;
+        const positionIconInfo: {iconId: number, iconSize: number} = positionIcons[positionId];
+        return `width: ${positionIconInfo.iconSize}px; height: ${positionIconInfo.iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px 0px;'"`;
     }
 
     public getTvPercentDiff(teamValue1: number, teamValue2: number): number {
