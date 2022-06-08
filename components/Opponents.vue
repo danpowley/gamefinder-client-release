@@ -178,6 +178,7 @@ export default class OpponentsComponent extends Vue {
         this.pendingOpponents = data;
         this.opponentsNeedUpdate = true;
         this.processOpponents();
+        this.$emit('opponents-updated');
     }
 
     private processOpponents() {

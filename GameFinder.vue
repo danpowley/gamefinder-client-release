@@ -11,7 +11,7 @@
 
         <!-- We use v-if here because we want the component to be mounted each time display changes and force a reload of team data -->
         <lfgteams
-            v-if="display === 'TEAMS'"
+            v-if="display === 'TEAMS' || display === 'TEAMS_ACTIVATING'"
             :is-dev-mode="isDevMode"
             :coach-name="coachName"
             @show-lfg="showLfg"
@@ -144,6 +144,7 @@
                     @refresh="refresh"
                     @hide-match="handleHideMatch"
                     @hide-coach="handleHideCoach"
+                    @opponents-updated="handleOpponentsUpdated"
                     @open-modal="openModal"></opponents>
             </div>
         </div>
@@ -207,7 +208,7 @@ export default class GameFinder extends Vue {
     private backendApi: IBackendApi;
 
     public coachName: string | null = null;
-    public display: 'LFG' | 'TEAMS' = 'LFG';
+    public display: 'LFG' | 'TEAMS' | 'TEAMS_ACTIVATING' = 'LFG';
     public featureFlags = {blackbox: false, teamSettings: false};
     public userSettings: UserSettings | null = null;
 
@@ -367,7 +368,13 @@ export default class GameFinder extends Vue {
             this.selectedOwnTeam = onlyTeam;
         }
 
-        this.display = 'LFG'
+        this.display = 'TEAMS_ACTIVATING';
+    }
+
+    public handleOpponentsUpdated() {
+        if (this.display === 'TEAMS_ACTIVATING') {
+            this.display = 'LFG';
+        }
     }
 
     public async showTeams() {
