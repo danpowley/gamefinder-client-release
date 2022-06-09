@@ -226,6 +226,7 @@ export default class GameFinder extends Vue {
     public me:any = { teams: [] };
 
     public opponentMap: Map<string, any> = new Map<string, any>();
+    public offerableOpponentTeamIds: number[] = [];
     private readHistory: Map<number, number[]> = new Map<number, number[]>();
 
     // the offers property is primarily managed by the OffersComponent, they're held here and passed to OffersComponent as a prop
@@ -328,6 +329,8 @@ export default class GameFinder extends Vue {
             hasUnreadItems: false
         }], this.$set);
 
+        const offerableOpponentTeamIds = [];
+
         for (const match of matchesAndTeamsState.matches) {
             if (match.visible === true) {
                 const myTeamIsTeam1 = match.team1.coach.name === this.coachName;
@@ -339,6 +342,9 @@ export default class GameFinder extends Vue {
                     for (const myTeam of myTeams) {
                         if (myTeam.id === myTeamId) {
                             myTeam.allow.push(opponentTeamId);
+                            if (! offerableOpponentTeamIds.includes(opponentTeamId)) {
+                                offerableOpponentTeamIds.push(opponentTeamId);
+                            }
                         }
                     }
                 }
@@ -356,6 +362,7 @@ export default class GameFinder extends Vue {
 
         myTeams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
         this.me.teams = myTeams;
+        this.offerableOpponentTeamIds = offerableOpponentTeamIds;
     }
 
     public async showLfg() {
@@ -448,7 +455,11 @@ export default class GameFinder extends Vue {
                 if (this.selectedOwnTeam) {
                     oppTeam.visible = this.selectedOwnTeam.allow.includes(oppTeam.id);
                 } else {
-                    oppTeam.visible = true;
+                    if (this.userSettings.showUnofferableTeams) {
+                        oppTeam.visible = true;
+                    } else {
+                        oppTeam.visible = this.offerableOpponentTeamIds.includes(oppTeam.id);
+                    }
                 }
 
                 if (oppTeam.visible) {

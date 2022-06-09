@@ -4,9 +4,15 @@
             <a href="#" class="closemodal" @click.prevent="close">&times;</a>
             <div class="settingstitle">Gamefinder settings for ALL teams</div>
             <div class="settingssection">
-                <div class="title"><strong>Audio settings</strong></div>
+                <div class="title"><strong>Opponent filtering</strong></div>
                 <div>
-                    <input type="checkbox" v-model="userSettings.audio" @change="updateAudioSetting" id="updatesettingaudio"> <label for="updatesettingaudio">Sound alerts enabled.</label>
+                    <input type="checkbox" v-model="userSettings.showUnofferableTeams" @change="updateShowUnofferableTeams" id="updateshowunofferableteams"> <label for="updateshowunofferableteams">Show all coaches and teams (only applies when not filtering by own team)</label>
+                </div>
+            </div>
+            <div class="settingssection">
+                <div class="title"><strong>Alerts</strong></div>
+                <div>
+                    <input type="checkbox" v-model="userSettings.audio" @change="updateAudioSetting" id="updatesettingaudio"> <label for="updatesettingaudio">Sound alerts enabled</label>
                 </div>
             </div>
             <div class="settingssection">
@@ -67,6 +73,11 @@ export default class SettingsComponent extends Vue {
 
     public close() {
         this.$emit('close-modal');
+    }
+
+    public async updateShowUnofferableTeams() {
+        await this.backendApi.setGameFinderVar('gamefinder.showUnofferableTeams', this.$props.userSettings.showUnofferableTeams ? 'Yes' : 'No');
+        this.$emit('user-settings-changed');
     }
 
     public async updateAudioSetting() {

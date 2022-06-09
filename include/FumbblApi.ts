@@ -64,10 +64,12 @@ export default class FumbblApi implements IBackendApi {
         const gameFinderUserSettingsPrefix = 'gamefinder.';
         const gameFinderUserSettings = await Axios.get('/api/coach/getvar/' + gameFinderUserSettingsPrefix);
 
+        const showUnofferableTeamsVar: GameFinderVar = 'gamefinder.showUnofferableTeams';
         const enableSoundVar: GameFinderVar = 'gamefinder.enableSound';
         const enableZenModeVar: GameFinderVar = 'gamefinder.zenMode';
 
         return {
+            showUnofferableTeams: gameFinderUserSettings.data[showUnofferableTeamsVar] === 'Yes',
             audio: gameFinderUserSettings.data[enableSoundVar] === 'Yes',
             hiddenCoaches: hiddenCoaches,
             zenMode: gameFinderUserSettings.data[enableZenModeVar] === 'Yes',
