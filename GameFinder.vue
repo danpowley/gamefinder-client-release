@@ -234,6 +234,8 @@ export default class GameFinder extends Vue {
     public matchesAndTeamsState: {matches: any[], teams: any[]} = {matches: [], teams: []};
     public matchesAndTeamsStateLastUpdated: number = 0;
 
+    public lastActiveTimestamp: number = 0;
+
     public blackboxData: {available: number, chosen: number} = {available: 0, chosen: 0};
 
     public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
@@ -255,7 +257,23 @@ export default class GameFinder extends Vue {
 
         document.addEventListener('click', this.onOuterModalClick);
 
+        document.getElementById("gamefinder").addEventListener('click', this.updateLastActiveTimestamp);
+
         this.beginGetStatePolling();
+    }
+
+    public updateLastActiveTimestamp() {
+        this.lastActiveTimestamp = Date.now();
+    }
+
+    public isStatePollingAllowed(): boolean {
+        const msUntilStateDelayUnacceptable = 15 * 1000;
+        const stateDelayUnacceptable = this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - msUntilStateDelayUnacceptable;
+
+        const msUserActivityDelayUnacceptable = 30 * 60000;
+        const userActivityDelayUnacceptable = this.lastActiveTimestamp !== 0 && this.lastActiveTimestamp < Date.now() - msUserActivityDelayUnacceptable;
+
+        return stateDelayUnacceptable === false && userActivityDelayUnacceptable === false;
     }
 
     public async beginGetStatePolling() {
@@ -269,7 +287,7 @@ export default class GameFinder extends Vue {
             if (launchGameOfferTimedOut || downloadJnlpOfferTimedOut) {
                 this.allowRejoinAfterDownload = true;
                 enableGetStatePolling = false;
-            } else if (this.matchesAndTeamsStateLastUpdated !== 0 && this.matchesAndTeamsStateLastUpdated < Date.now() - 10000) {
+            } else if (! this.isStatePollingAllowed()) {
                 this.stateUpdatesArePaused = true;
                 enableGetStatePolling = false;
             }
@@ -686,9 +704,9 @@ export default class GameFinder extends Vue {
     }
 
     public async handleContinueSession() {
-        this.stateUpdatesArePaused = false;
         await this.backendApi.activate();
         await this.getState();
+        this.stateUpdatesArePaused = false;
     }
 
     public async continueAfterLaunch() {
