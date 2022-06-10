@@ -2,7 +2,7 @@
     <div id="opponentslist" @mouseenter="setUiUpdatesPaused(true)" @mouseleave="setUiUpdatesPaused(false)">
         <div class="expandcollapseall" v-show="visibleOpponents.length > 0"><a href="#" @click.prevent="expandAllOpponents()">Expand</a> <a href="#" @click.prevent="collapseAllOpponents()">Collapse</a></div>
         <div>
-            <strong>{{ isOwnTeamSelected ? 'Opponents filtered by selected team.' : 'All opponents on Gamefinder' }}</strong>
+            <strong>{{ isOwnTeamSelected ? 'Opponents filtered by selected team.' : 'Opponents' }}</strong>
             <span
                 v-show="uiUpdatesPaused"
                 class="frozentag"
