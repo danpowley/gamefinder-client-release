@@ -35,7 +35,23 @@
                         <div style="margin-bottom: 10px;">Click any of the following teams to send an offer.</div>
                     </template>
                     <template v-else>
-                        <div style="margin-bottom: 10px;">None of your teams are allowed to make offers to this team.</div>
+                        <div class="noteamsallowedtooffer">
+                            <p>None of your teams are allowed to make offers to this team.</p>
+                            <hr>
+                            <p>The most common reasons teams are not showing up here are:</p>
+                            <ul>
+                                <li>Teams have to be in the same division (eg, Competitive division teams cannot offer to League division teams)</li>
+                                <li>Teams have to be using the same ruleset</li>
+                                <li>Teams have to be in the same league, or both leagues need to allow cross-league games</li>
+                                <li>You or your opponent may have recently declined or cancelled a specific match between teams</li>
+                            </ul>
+                            <p>Competitive division teams have further restrictions:</p>
+                            <ul>
+                                <li>Teams have to be within certain TV limits (especially for rookie teams)</li>
+                                <li>You cannot play a coach too often</li>
+                            </ul>
+                            <p>If you think your team should be able to make an offer, please ask for Help via Discord or submit a support ticket.</p>
+                        </div>
                     </template>
                     <div v-for="myTeam in ownTeamsOfferable" :key="myTeam.id" class="rosterofferteam" :class="{recentoffersent: recentOffersSent.includes(myTeam.id)}" @click="sendOffer(myTeam)">
                         <div class="logo">
