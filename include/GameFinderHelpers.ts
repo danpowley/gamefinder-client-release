@@ -31,14 +31,16 @@ export default class GameFinderHelpers {
                 showLeagueHeader: false,
             };
 
-            if (previousDivision !== team.division) {
-                previousDivision = team.division;
-                teamHeadings.showDivisionHeader = true;
-            }
+            if (team.visible) {
+                if (previousDivision !== team.division) {
+                    previousDivision = team.division;
+                    teamHeadings.showDivisionHeader = true;
+                }
 
-            if (team.division === 'League' && team.league && team.league.name && previousLeague !== team.league.name) {
-                previousLeague = team.league.name;
-                teamHeadings.showLeagueHeader = true;
+                if (team.division === 'League' && team.league && team.league.name && previousLeague !== team.league.name) {
+                    previousLeague = team.league.name;
+                    teamHeadings.showLeagueHeader = true;
+                }
             }
 
             allTeamHeadings['team' + team.id] = teamHeadings;
