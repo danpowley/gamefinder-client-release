@@ -473,7 +473,7 @@ export default class GameFinder extends Vue {
                 if (this.selectedOwnTeam) {
                     oppTeam.visible = this.selectedOwnTeam.allow.includes(oppTeam.id);
                 } else {
-                    if (this.userSettings.showUnofferableTeams) {
+                    if (this.userSettings.showUnofferableTeams || this.me.teams.length === 0) {
                         oppTeam.visible = true;
                     } else {
                         oppTeam.visible = this.offerableOpponentTeamIds.includes(oppTeam.id);
