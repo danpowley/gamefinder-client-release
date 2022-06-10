@@ -7,39 +7,49 @@
                     <input type="checkbox" id="selectallteamsbegin" class="selectallteams" @change="toggleAll"/>
                     <label for="selectallteamsbegin">Select All</label>
                 </div>
-                <template v-if="activateTeamsButtonClicked">
-                    Please wait, teams activating.
-                </template>
-                <template v-else>
-                    <input type="button" value="Activate teams" @click="showLfg" />
-                </template>
-            </div>
-            <div class="lfgList">
-                <template v-for="team in teams">
-                    <div :key="team.id">
-                        <div v-if="teamsShowDivisionLeagueHeader && teamsShowDivisionLeagueHeader['team' + team.id].showDivisionHeader" class="divisionheader">{{ team.division }}</div>
-                        <div v-if="teamsShowDivisionLeagueHeader && teamsShowDivisionLeagueHeader['team' + team.id].showLeagueHeader" class="leagueheader">League teams for <strong>{{ team.league.name }}</strong></div>
-                        <div class="lfgteam">
-                            <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
-                            <img :src="getTeamLogoUrl(team)" />
-                            <div class="teamdetails">
-                                <div class="teamname">{{ team.name }}</div>
-                                <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-            <div class="controls">
-                <div class="selectall">
-                    <input type="checkbox" id="selectallteamsend" class="selectallteams" @change="toggleAll"/>
-                    <label for="selectallteamsend">Select All</label>
+                <div>
+                    <template v-if="activateTeamsButtonClicked">
+                        Please wait, teams activating.
+                    </template>
+                    <template v-else>
+                        <input type="button" value="Activate teams" @click="showLfg" />
+                    </template>
                 </div>
-                <template v-if="activateTeamsButtonClicked">
-                    Please wait, teams activating.
-                </template>
-                <template v-else>
-                    <input type="button" value="Activate teams" @click="showLfg" />
+            </div>
+            <div class="lfglist">
+                <template v-for="division in teamsByDivision">
+                    <div :key="division.name">
+                        <div class="divisionheader">
+                            <div class="headertext">{{ division.name }}</div>
+                        </div>
+                        <template v-for="team in division.teams">
+                            <div :key="team.id" class="lfgteam">
+                                <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
+                                <img :src="getTeamLogoUrl(team)" />
+                                <div class="teamdetails">
+                                    <div class="teamname">{{ team.name }}</div>
+                                    <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-for="league in division.leagues">
+                            <div :key="league.name">
+                                <div class="leagueheader">
+                                    <div class="headertext">League teams for <strong>{{ league.name }}</strong></div>
+                                </div>
+                                <template v-for="team in league.teams">
+                                    <div :key="team.id" class="lfgteam">
+                                        <input class="teamcheck" type="checkbox" :value="team.id" v-model="checked" @change="toggleTeam">
+                                        <img :src="getTeamLogoUrl(team)" />
+                                        <div class="teamdetails">
+                                            <div class="teamname">{{ team.name }}</div>
+                                            <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
                 </template>
             </div>
         </div>
@@ -67,10 +77,10 @@ import IBackendApi from "../include/IBackendApi";
 })
 export default class LfgTeamsComponent extends Vue {
     private backendApi: IBackendApi | null = null;
-    public teams: any[] = [];
+    public totalTeams: number = 0;
+    public teamsByDivision: any[] = [];
     public checked: boolean[] = [];
     public activateTeamsButtonClicked: boolean = false;
-    public teamsShowDivisionLeagueHeader: any | null = null;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -86,13 +96,41 @@ export default class LfgTeamsComponent extends Vue {
 
     private async reloadTeams() {
         const teams = await this.backendApi.allTeams(this.$props.coachName);
-        teams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
-        this.teamsShowDivisionLeagueHeader = GameFinderHelpers.getTeamsShowDivisionLeagueHeader(teams);
-        this.teams = teams;
-
+        this.totalTeams = teams.length;
         this.checked = teams.filter(GameFinderPolicies.teamIsLfg).map((team) => team.id);
-
+        teams.sort(GameFinderPolicies.sortTeamByDivisionNameLeagueNameTeamName);
+        this.teamsByDivision = this.groupTeamsByDivisionAndLeague(teams);
         this.updateAllChecked();
+    }
+
+    private groupTeamsByDivisionAndLeague(teams: any[]): any[] {
+        const teamsByDivision = [];
+        for (const team of teams) {
+            let division = teamsByDivision.find((division) => {return division.name === team.division});
+            if (! division) {
+                division = {
+                    name: team.division,
+                    leagues: [],
+                    teams: [],
+                };
+                teamsByDivision.push(division);
+            }
+
+            if (team.league && team.league.name) {
+                let league = division.leagues.find((league) => {return league.name === team.league.name});
+                if (! league) {
+                    league = {
+                        name: team.league.name,
+                        teams: [],
+                    };
+                    division.leagues.push(league);
+                }
+                league.teams.push(team);
+            } else {
+                division.teams.push(team);
+            }
+        }
+        return teamsByDivision;
     }
 
     private async updateBlackboxData() {
@@ -148,7 +186,7 @@ export default class LfgTeamsComponent extends Vue {
     {
         const allCheckboxes:any = document.getElementsByClassName('selectallteams');
 
-        let allChecked = this.teams.length === this.checked.length;
+        let allChecked = this.totalTeams === this.checked.length;
         let allUnchecked = this.checked.length === 0;
 
         if (allUnchecked) {

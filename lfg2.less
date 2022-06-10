@@ -83,20 +83,38 @@
     }
 
     #lfgteamswrapper {
+      overflow: initial;
       padding: 0;
 
-      .divisionheader {
-        font-weight: bold;
-        font-size: 11pt;
-        border-bottom: solid @Jet 2px;
-        margin-top: 10px;
-        padding-left: 6px;
-      }
+      .lfglist > div {
+        display: contents;
 
-      .leagueheader {
-        border-bottom: solid @Jet 1px;
-        margin-top: 6px;
-        padding-left: 6px;
+        .divisionheader {
+          height: 30px;
+          z-index: 2;
+          top: 45px;
+          border-bottom-width: 2px;
+          font-weight: bold;
+          font-size: 11pt;
+        }
+        .leagueheader {
+          height: 25px;
+          z-index: 1;
+          top: 75px;
+          border-bottom-width: 1px;
+        }
+        .divisionheader, .leagueheader {
+          background: @OldLace;
+          position: sticky;
+          border-bottom-style: solid;
+          border-bottom-color: @Jet;
+
+          .headertext {
+            position: absolute;
+            bottom: 2px;
+            left: 6px;
+          }
+        }
       }
 
       .lfgteam {
@@ -127,22 +145,30 @@
           .teaminfo {
             font-size: 9pt;
             font-style: oblique;
+            color: lighten(@Jet, 20%);
           }
         }
       }
 
       .controls {
-        position: relative;
-        padding: 10px;
-        text-align: center;
+        padding: 0 10px 0 6px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        background: @OldLace;
+        height: 45px;
+        border-bottom: solid @Forest 1px;
+
+        position: sticky;
+        top:0;
+        z-index: 2;
 
         .selectall {
-          position: absolute;
-          left: 5px;
-          vertical-align: middle;
-          display: inline-block;
           input[type=checkbox] {
             margin-right: 10px;
+          }
+          label {
+            font-size: 11pt;
           }
         }
       }
@@ -668,7 +694,7 @@
 
         .info {
           font-style: oblique;
-          color: lighten(@Jet, 30%);
+          color: lighten(@Jet, 20%);
         }
       }
 
@@ -744,7 +770,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    z-index: 3;
     background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.5);
   }
