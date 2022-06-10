@@ -25,14 +25,23 @@
     .zenmodeonly {
       display: inline;
     }
-    #opponentslist .opponent .coach {
-      .coachname, .ranking {
-        display: none;
-      }
-    }
-    .team > .details {
-      .name, .seasonsgames, .teamvalue {
-        display: none;
+    #opponentslist {
+      .opponent {
+        .coach {
+          .coachname, .ranking {
+            display: none;
+          }
+        }
+        .team {
+          .details {
+            .name, .seasonsgames, .teamvalue {
+              display: none;
+            }
+            .info {
+              color: @Black;
+            }
+          }
+        }
       }
     }
     .offeredteam.away {
