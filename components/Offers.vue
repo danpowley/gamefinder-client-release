@@ -215,6 +215,9 @@ export default class OffersComponent extends Vue {
             }
             this.additionalOffers = num;
         }
+
+        const totalOffers = this.$props.offers.length + this.additionalOffers;
+        document.title = `FUMBBL :: ${totalOffers} offers`;
     }
 
     private isOfferValid(now: number, offer: any): boolean {
