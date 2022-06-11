@@ -5,14 +5,24 @@
             <div class="displayteam">
                 <div class="displayteamheader">
                     <div class="logo">
-                        <img :src="getTeamLogoUrl(settings.displayTeam)" />
+                        <img :src="getTeamLogoUrl(settings.displayTeam, false)" />
                     </div>
                     <div class="details">
                         <div class="name">
                             <a class="teampagelink" :href="'https://fumbbl.com/p/team?team_id=' + rosterData.id" target="_blank" :title="'Open team page for ' + rosterData.name + ' in a new tab.'">{{ rosterData.name }}</a> (<a class="coachpagelink" :href="'https://fumbbl.com/~' + rosterData.coach.name" target="_blank" :title="'Open coach page for ' + rosterData.coach.name + ' in a new tab'">{{ rosterData.coach.name }}</a>)
                         </div>
                         <div class="info">
-                            <span title="Team Value">{{ rosterData.teamValue/1000 }}k</span> {{ rosterData.roster.name }}, <span title="Number of rerolls">{{ rosterData.rerolls }} RR</span>, <span title="Dedicated fans.">{{rosterData.fanFactor}} DF</span>, <span title="Treasury available">{{ rosterData.treasury/1000 }}k gold</span>, <span title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>, <span title="Team record: win/tie/loss">{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
+                            <div>
+                                <span title="Team Value">{{ rosterData.teamValue/1000 }}k</span> {{ rosterData.roster.name }}
+                            </div>
+                            <div class="subinfo">
+                                <span class="rosterfact" title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>
+                                <span class="rosterfact" title="Team record: win/tie/loss">Record:{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
+                                <span class="rosterfact" title="Number of rerolls">RR:{{ rosterData.rerolls }}</span>
+                                <span class="rosterfact" title="Apothecary">Apo:{{ rosterData.apothecary === 'Yes' ? 'Yes' : 'No' }}</span>
+                                <span class="rosterfact" title="Dedicated fans.">DF:{{rosterData.fanFactor}}</span>
+                                <span class="rosterfact" title="Treasury available">Tr:{{ rosterData.treasury/1000 }}k</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -37,7 +47,7 @@
                     <template v-else>
                         <div class="noteamsallowedtooffer">
                             <p>None of your teams are allowed to make offers to this team.</p>
-                            <hr>
+
                             <p>The most common reasons teams are not showing up here are:</p>
                             <ul>
                                 <li>Teams have to be in the same division (eg, Competitive division teams cannot offer to League division teams)</li>
@@ -209,8 +219,8 @@ export default class RosterComponent extends Vue {
         this.recentOffersSent.push(myTeam.id);
     }
 
-    public getTeamLogoUrl(team: any): string {
-        return GameFinderHelpers.getTeamLogoUrl(team);
+    public getTeamLogoUrl(team: any, small: boolean = true): string {
+        return GameFinderHelpers.getTeamLogoUrl(team, small);
     }
 
     public getPlayerIconStyle(positionId: number, positionIcons: any): string {
