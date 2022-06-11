@@ -399,6 +399,12 @@ export default class GameFinder extends Vue {
     public handleOpponentsUpdated() {
         if (this.display === 'TEAMS_ACTIVATING') {
             this.display = 'LFG';
+            setTimeout(() => {
+                window.scroll({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 1000);
         }
     }
 
