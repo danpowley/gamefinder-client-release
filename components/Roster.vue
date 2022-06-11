@@ -18,6 +18,7 @@
                             <div class="subinfo">
                                 <span class="rosterfact" title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>
                                 <span class="rosterfact" title="Team record: win/tie/loss">Record:{{ rosterData.record.wins }}/{{ rosterData.record.ties }}/{{ rosterData.record.losses }}</span>
+                                <span class="rosterfact" title="Players available (not MNG)">Players:{{ availablePlayers(rosterData.groupedPlayers) }}</span>
                                 <span class="rosterfact" title="Number of rerolls">RR:{{ rosterData.rerolls }}</span>
                                 <span class="rosterfact" title="Apothecary">Apo:{{ rosterData.apothecary === 'Yes' ? 'Yes' : 'No' }}</span>
                                 <span class="rosterfact" title="Dedicated fans.">DF:{{rosterData.fanFactor}}</span>
@@ -26,17 +27,21 @@
                         </div>
                     </div>
                 </div>
-                <table cellspacing="0" cellpadding="0" width="100%">
-                    <tr v-for="player in rosterData.players" :key="player.id">
-                        <!-- @christer absolute url used -->
-                        <td style="width: 45px;">
-                            <div :style="getPlayerIconStyle(player.positionId, rosterData.positionIcons)"></div>
-                        </td>
-                        <td class="position">{{ player.position }}</td>
-                        <td class="injuries">{{ player.injuries }}</td>
-                        <td>{{ player.skills }}</td>
-                    </tr>
-                </table>
+                <template v-for="playerGroup in rosterData.groupedPlayers">
+                    <div :key="playerGroup.title" v-if="playerGroup.players.length > 0">
+                        <h3 v-if="playerGroup.title === 'mngPlayers'">Missing next game (MNG)</h3>
+                        <table cellspacing="0" cellpadding="0" width="100%">
+                            <tr v-for="player in playerGroup.players" :key="player.id">
+                                <td style="width: 45px;">
+                                    <div :style="getPlayerIconStyle(player.positionId, rosterData.positionIcons)"></div>
+                                </td>
+                                <td class="position">{{ player.position }}</td>
+                                <td class="injuries">{{ player.injuries }}</td>
+                                <td>{{ player.skills }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </template>
             </div>
             <template v-if="! isMyTeam">
                 <div class="rosteroffers">
@@ -175,6 +180,17 @@ export default class RosterComponent extends Vue {
                 return r;
             });
 
+            rosterData.groupedPlayers = [
+                {
+                    title: 'matchPlayers',
+                    players: rosterData.players.filter((player) => {return ! player.injuries.split(',').includes('m')}),
+                },
+                {
+                    title: 'mngPlayers',
+                    players: rosterData.players.filter((player) => {return player.injuries.split(',').includes('m')}),
+                }
+            ],
+
             data = {
                 expiry: Date.now() + 60000,
                 roster: rosterData,
@@ -183,6 +199,14 @@ export default class RosterComponent extends Vue {
         }
 
         return data.roster;
+    }
+
+    public availablePlayers(groupedPlayers): number {
+        const matchPlayersGroup = groupedPlayers.find((playerGroup) => {
+            return playerGroup.title === 'matchPlayers';
+        });
+
+        return matchPlayersGroup.players.length;
     }
 
     public async getIconSize(positionIconId: number): Promise<number> {
