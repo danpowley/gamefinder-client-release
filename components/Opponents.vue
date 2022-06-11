@@ -14,7 +14,7 @@
             <div class="coach" :class="{fadeout: latestHiddenCoachId === opponent.id}">
                 <a class="disclosure" @click.prevent="expandOpponent(opponent)" href="#">
                     <span class="showhideicon" v-if="isExpanded(opponent)">&#x25bc;</span>
-                    <span class="showhideicon" v-else>&#x25b6;</span>
+                    <span class="showhideicon" v-else>&#x25b6;&#xfe0e;</span>
                     <span class="teamcount" title="Teams listed for this opponent">{{ opponent.teams.filter((o) => o.visible).length }}</span>
                     <span class="coachname">{{ opponent.name }}</span>
                     <span class="zenmodeonly">Coach name hidden</span>
