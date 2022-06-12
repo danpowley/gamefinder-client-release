@@ -49,6 +49,9 @@
                     <template v-if="ownTeamsOfferable.length > 0">
                         <div style="margin-bottom: 10px;">Click any of the following teams to send an offer.</div>
                     </template>
+                    <template v-else-if="!settings.hasActivatedTeams">
+                        <div>You haven't activated any teams. Use the &quot;Choose teams&quot; link to activate teams.</div>
+                    </template>
                     <template v-else>
                         <div class="noteamsallowedtooffer">
                             <p>None of your teams are allowed to make offers to this team.</p>

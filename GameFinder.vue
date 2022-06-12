@@ -663,7 +663,7 @@ export default class GameFinder extends Vue {
         }
     }
 
-    private getModalRosterSettings(rosterTeam: any): {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} {
+    private getModalRosterSettings(rosterTeam: any): {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[], hasActivatedTeams: boolean} {
         let isMyTeam = false;
         for (const myTeam of this.me.teams) {
             if (myTeam.id === rosterTeam.id) {
@@ -686,7 +686,8 @@ export default class GameFinder extends Vue {
         return {
             isMyTeam: isMyTeam,
             displayTeam: rosterTeam,
-            ownTeamsOfferable: ownTeamsOfferable
+            ownTeamsOfferable: ownTeamsOfferable,
+            hasActivatedTeams: this.me.teams.length > 0
         };
     }
 
