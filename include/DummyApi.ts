@@ -75,7 +75,7 @@ export default class DummyApi implements IBackendApi {
 
         return {
             showUnofferableTeams: gameFinderUserSettings.data[showUnofferableTeamsVar] === 'Yes',
-            audio: gameFinderUserSettings.data[enableSoundVar] === 'Yes',
+            audio: gameFinderUserSettings.data[enableSoundVar] !== 'No', // default to 'Yes' (undefined treated as 'Yes')
             hiddenCoaches: hiddenCoaches,
             zenMode: gameFinderUserSettings.data[enableZenModeVar] === 'Yes',
         };
