@@ -38,6 +38,10 @@
             <source src="https://fumbbl.com/FUMBBL/sound/ping.mp3" type="audio/mpeg">
             <source src="https://fumbbl.com/FUMBBL/sound/ping.ogg" type="audio/ogg">
         </audio>
+        <audio id="audiostartdialogoffer">
+            <source src="https://fumbbl.com/FUMBBL/sound/ping.mp3" type="audio/mpeg">
+            <source src="https://fumbbl.com/FUMBBL/sound/ping.ogg" type="audio/ogg">
+        </audio>
     </div>
 </template>
 
@@ -80,6 +84,10 @@ import GameFinderHelpers from "../include/GameFinderHelpers";
         audioEnabled: {
             type: Boolean,
             required: true
+        },
+        startDialogOfferIsActive: {
+            type: Boolean,
+            required: true
         }
     },
     watch: {
@@ -97,6 +105,8 @@ export default class OffersComponent extends Vue {
     private uiUpdatesPaused: boolean = false;
 
     public fadeOutId: number | null = null;
+
+    private lastAcceptedOfferId: number | null = null;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -143,6 +153,13 @@ export default class OffersComponent extends Vue {
                 launchGameOffer = offerCreated;
             } else if (offer.showDialog === true) {
                 startDialogOffer = offerCreated;
+
+                // Decide whether to play a sound alert for the start dialog
+                const isNewStartDialogOffer = !this.$props.startDialogOfferIsActive;
+                const startDialogTriggeredByOpponent = this.lastAcceptedOfferId !== offer.id;
+                if (isNewStartDialogOffer && startDialogTriggeredByOpponent) {
+                    this.playSound('audiostartdialogoffer');
+                }
             }
 
             if (offer.clientId && offer.clientId !== 0) {
@@ -309,6 +326,7 @@ export default class OffersComponent extends Vue {
     }
 
     public acceptOffer(offer: any): void {
+        this.lastAcceptedOfferId = offer.id;
         this.backendApi.sendOffer(offer.home.id, offer.away.id);
     }
 
@@ -338,8 +356,8 @@ export default class OffersComponent extends Vue {
 
     private playSound(audioElementId) {
         if (this.$props.audioEnabled) {
-            const audioElement = document.getElementById(audioElementId);
-            (audioElement as HTMLAudioElement).play();
+            const audioElement = document.getElementById(audioElementId) as HTMLAudioElement;
+            audioElement.play();
         }
     }
 

@@ -118,6 +118,7 @@
                     :my-teams="me.teams"
                     :hidden-coaches="userSettings ? userSettings.hiddenCoaches : []"
                     :audio-enabled="userSettings ? userSettings.audio : true"
+                    :start-dialog-offer-is-active="startDialogOffer !== null"
                     @hide-match="handleHideMatch"
                     @open-modal="openModal"
                     @show-dialog="handleShowDialog"
