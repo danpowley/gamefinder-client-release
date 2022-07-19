@@ -4,12 +4,20 @@ import IBackendApi from "./IBackendApi"
 import { Coach, GameFinderVar, UserSettings } from "./Interfaces";
 
 export default class FumbblApi implements IBackendApi {
-    public async activate(): Promise<void> {
-        await Axios.post('/api/gamefinder/activate');
+    public async activate(): Promise<number> {
+        const result = await Axios.post('/api/gamefinder/activate');
+        return result.data.version;
     }
 
-    public async getState(): Promise<any> {
-        const result = await Axios.post('/api/gamefinder/state');
+    public async getState(backendVersion: number): Promise<any> {
+        var bodyFormData = new FormData();
+        bodyFormData.append('version', backendVersion);
+        const result = await Axios({
+            method: "post",
+            url: '/api/gamefinder/state',
+            data: bodyFormData,
+        });
+
         return result.data;
     }
 

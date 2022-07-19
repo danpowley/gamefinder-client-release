@@ -1,9 +1,9 @@
 import { GameFinderVar, UserSettings } from "./Interfaces";
 
 export default interface IBackendApi {
-    activate(): Promise<void>;
+    activate(): Promise<number>;
 
-    getState(): Promise<any>;
+    getState(backendVersion: number): Promise<any>;
 
     allTeams(coachName: string): Promise<any[]>;
 

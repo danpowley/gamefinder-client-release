@@ -166,8 +166,11 @@
         <teamsettings v-if="featureFlags.teamSettings" :team="modalTeamSettingsTeam" @close-modal="closeModal"></teamsettings>
 
         <stateupdatespaused
-            :paused="stateUpdatesArePaused"
+            :paused="stateUpdatesArePaused && !backendVersionRequiresRefresh"
             @continue-session="handleContinueSession"></stateupdatespaused>
+
+        <backendversionrefresh
+            :refresh-required="backendVersionRequiresRefresh"></backendversionrefresh>
     </div>
 </template>
 
@@ -186,6 +189,7 @@ import SelectedOwnTeamComponent from "./components/SelectedOwnTeam.vue";
 import OffersComponent from "./components/Offers.vue";
 import OpponentsComponent from "./components/Opponents.vue";
 import StateUpdatesPausedComponent from "./components/StateUpdatesPaused.vue";
+import BackendVersionRefreshComponent from "./components/BackendVersionRefresh.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
 import { Coach, UserSettings } from "./include/Interfaces";
@@ -201,10 +205,14 @@ import { Coach, UserSettings } from "./include/Interfaces";
         'selectedownteam': SelectedOwnTeamComponent,
         'offers': OffersComponent,
         'opponents': OpponentsComponent,
-        'stateupdatespaused': StateUpdatesPausedComponent
+        'stateupdatespaused': StateUpdatesPausedComponent,
+        'backendversionrefresh': BackendVersionRefreshComponent,
     }
 })
 export default class GameFinder extends Vue {
+    private backendVersion: number | null = null;
+    private backendVersionRequiresRefresh: boolean = false;
+
     public isDevMode: boolean = false;
     private backendApi: IBackendApi;
 
@@ -251,7 +259,8 @@ export default class GameFinder extends Vue {
     }
 
     async mounted() {
-        await this.backendApi.activate();
+        this.backendVersion = await this.backendApi.activate();
+
         this.userSettings = await this.backendApi.getUserSettings();
 
         this.refresh();
@@ -312,7 +321,16 @@ export default class GameFinder extends Vue {
 
     public async getState()
     {
-        const matchesAndTeamsState = await this.backendApi.getState();
+        if (this.backendVersion === null) {
+            return;
+        }
+        const matchesAndTeamsState = await this.backendApi.getState(this.backendVersion);
+
+        if (matchesAndTeamsState.version !== this.backendVersion) {
+            this.backendVersionRequiresRefresh = true;
+            return;
+        }
+
         this.refreshMyTeams(matchesAndTeamsState);
         this.refresh();
         this.matchesAndTeamsState = matchesAndTeamsState;
