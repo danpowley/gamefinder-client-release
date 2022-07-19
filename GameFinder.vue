@@ -261,6 +261,8 @@ export default class GameFinder extends Vue {
     async mounted() {
         this.backendVersion = await this.backendApi.activate();
 
+        this.updateLastActiveTimestamp();
+
         this.userSettings = await this.backendApi.getUserSettings();
 
         this.refresh();
