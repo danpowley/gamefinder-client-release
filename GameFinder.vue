@@ -259,7 +259,7 @@ export default class GameFinder extends Vue {
     }
 
     async mounted() {
-        this.backendVersion = await this.backendApi.activate();
+        await this.activate();
 
         this.updateLastActiveTimestamp();
 
@@ -339,6 +339,18 @@ export default class GameFinder extends Vue {
         this.matchesAndTeamsStateLastUpdated = Date.now();
     }
 
+    private async activate() {
+        const backendVersion = await this.backendApi.activate();
+        if (this.backendVersion === null) {
+            // this.backendVersion starts as null, so this only gets set on first call to activate
+            this.backendVersion = backendVersion;
+        }
+        if (this.backendVersion !== backendVersion) {
+            // if any subsequent call to activate finds a different version, we require user to refresh
+            this.backendVersionRequiresRefresh = true;
+        }
+    }
+
     private refreshMyTeams(matchesAndTeamsState: {matches: any[], teams: any[]})
     {
         let myTeams: any[] | null = null;
@@ -353,7 +365,7 @@ export default class GameFinder extends Vue {
         if (myTeams === null) {
             if (this.launchGameOffer === null) {
                 // reactivate to recover from a backend restart (only if a game has not been launched)
-                this.backendApi.activate();
+                this.activate();
             }
             return;
         }
@@ -405,7 +417,7 @@ export default class GameFinder extends Vue {
     }
 
     public async showLfg() {
-        await this.backendApi.activate();
+        await this.activate();
         await this.getState();
 
         // always select if only 1 team
@@ -732,7 +744,7 @@ export default class GameFinder extends Vue {
     }
 
     public async handleContinueSession() {
-        await this.backendApi.activate();
+        await this.activate();
         await this.getState();
         this.stateUpdatesArePaused = false;
     }
@@ -742,7 +754,7 @@ export default class GameFinder extends Vue {
         this.downloadJnlpOffer = null;
         this.allowRejoinAfterDownload = false;
         this.schedulingErrorMessage = null;
-        await this.backendApi.activate();
+        await this.activate();
         await this.getState();
     }
 }
