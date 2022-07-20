@@ -193,6 +193,7 @@ import BackendVersionRefreshComponent from "./components/BackendVersionRefresh.v
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
 import { Coach, UserSettings } from "./include/Interfaces";
+import { AxiosError } from "axios";
 
 @Component({
     components: {
@@ -304,15 +305,24 @@ export default class GameFinder extends Vue {
                 enableGetStatePolling = false;
             }
 
+            if (this.backendVersionRequiresRefresh) {
+                enableGetStatePolling = false;
+            }
+
             try {
                 if (enableGetStatePolling) {
                     await this.getState();
                 }
                 this.stateUpdateErrorMessage = null;
             } catch (error) {
-                setTimeout(() => {
-                    this.stateUpdateErrorMessage = (error as Error).name + ': ' + (error as Error).message;
-                }, 1000);
+                if (this.backendApi.isAxiosError((error as Error)) && (error as AxiosError).response.status === 400) {
+                    // 400 status code means the state has rejected our request as the version has changed, we need to force a reload.
+                    this.backendVersionHasChanged();
+                } else {
+                    setTimeout(() => {
+                        this.stateUpdateErrorMessage = (error as Error).name + ': ' + (error as Error).message;
+                    }, 1000);
+                }
             }
 
             setTimeout(getStateWithSetTimeout, this.secondsBetweenGetStateCalls*1000);
@@ -326,12 +336,8 @@ export default class GameFinder extends Vue {
         if (this.backendVersion === null) {
             return;
         }
-        const matchesAndTeamsState = await this.backendApi.getState(this.backendVersion);
 
-        if (matchesAndTeamsState.version !== this.backendVersion) {
-            this.backendVersionRequiresRefresh = true;
-            return;
-        }
+        const matchesAndTeamsState = await this.backendApi.getState(this.backendVersion);
 
         this.refreshMyTeams(matchesAndTeamsState);
         this.refresh();
@@ -345,10 +351,13 @@ export default class GameFinder extends Vue {
             // this.backendVersion starts as null, so this only gets set on first call to activate
             this.backendVersion = backendVersion;
         }
-        if (this.backendVersion !== backendVersion) {
-            // if any subsequent call to activate finds a different version, we require user to refresh
-            this.backendVersionRequiresRefresh = true;
-        }
+    }
+
+    private backendVersionHasChanged() {
+        this.backendVersionRequiresRefresh = true;
+        setTimeout(() => {
+            window.location.reload();
+        }, 30000);
     }
 
     private refreshMyTeams(matchesAndTeamsState: {matches: any[], teams: any[]})

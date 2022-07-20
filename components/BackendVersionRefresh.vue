@@ -6,8 +6,11 @@
                 <p>
                     Apologies for the inconvenience, the Gamefinder system has just been updated and you need to refresh your browser in order to continue.
                 </p>
+                <p>
+                    We will refresh the page automatically in 30 seconds, or click the link below to reload now.
+                </p>
                 <div>
-                    <a href="#" @click.prevent="reload">Reload Gamefinder</a>
+                    <a href="#" @click.prevent="reload">Reload now</a>
                 </div>
             </div>
         </div>

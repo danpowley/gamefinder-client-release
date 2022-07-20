@@ -4,6 +4,10 @@ import IBackendApi from "./IBackendApi"
 import { Coach, GameFinderVar, UserSettings } from "./Interfaces";
 
 export default class FumbblApi implements IBackendApi {
+    public isAxiosError(error: Error): boolean {
+        return Axios.isAxiosError(error);
+    }
+
     public async activate(): Promise<number> {
         const result = await Axios.post('/api/gamefinder/activate');
         return result.data.version;

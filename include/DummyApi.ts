@@ -9,6 +9,10 @@ export default class DummyApi implements IBackendApi {
         return this.dummyApiDomain + endPoint;
     }
 
+    public isAxiosError(error: Error): boolean {
+        return Axios.isAxiosError(error);
+    }
+
     public async activate(): Promise<number> {
         const result = await Axios.post(this.getFullApiEndPointUrl('/api/gamefinder/activate'));
         return result.data.version;

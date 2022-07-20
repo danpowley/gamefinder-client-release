@@ -1,6 +1,8 @@
 import { GameFinderVar, UserSettings } from "./Interfaces";
 
 export default interface IBackendApi {
+    isAxiosError(error: Error): boolean;
+
     activate(): Promise<number>;
 
     getState(backendVersion: number): Promise<any>;
