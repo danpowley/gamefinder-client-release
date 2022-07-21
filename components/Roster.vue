@@ -171,6 +171,9 @@ export default class RosterComponent extends Vue {
             rosterData.positionIcons = positionIcons;
 
             for (const p of rosterData.players) {
+                if (p.number > 16) {
+                    p.skills.push('Loner');
+                }
                 p.skills.sort((a,b) => a.localeCompare(b));
                 p.skills = p.skills.join(', ');
             }
