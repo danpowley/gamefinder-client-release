@@ -233,8 +233,9 @@ export default class OffersComponent extends Vue {
             this.additionalOffers = num;
         }
 
-        const totalOffers = this.$props.offers.length + this.additionalOffers;
-        document.title = `FUMBBL :: ${totalOffers} offers`;
+        const externalOfferCount = this.$props.offers.filter((offer) => offer.external === true).length;
+        const totalExternalOffers = externalOfferCount + this.additionalOffers;
+        document.title = `FUMBBL :: ${totalExternalOffers} offer${totalExternalOffers === 1 ? '' : 's'} received`;
     }
 
     private isOfferValid(now: number, offer: any): boolean {
