@@ -2,7 +2,7 @@
     <div v-if="isOpen" class="settingsouter">
         <div class="settingsinner">
             <a href="#" class="closemodal" @click.prevent="close">&times;</a>
-            <div class="settingstitle">Gamefinder settings for ALL teams</div>
+            <div class="settingstitle">Gamefinder settings</div>
             <div class="settingssection">
                 <div class="title"><strong>Opponent filtering</strong></div>
                 <div>
