@@ -14,3 +14,35 @@ export interface UserSettings {
 // Expand to add more values using Typescript pipe (|) syntax
 // e.g. = 'gamefinder.var1' | 'gamefinder.var2' | 'gamefinder.var3'
 export type GameFinderVar = 'gamefinder.enableSound' | 'gamefinder.zenMode' | 'gamefinder.showUnofferableTeams';
+
+export type LfgMode = 'Strict' | 'Mixed' | 'Open';
+
+export type BlackboxStatus = 'Active' | 'Paused' | 'Offline';
+
+export interface BlackboxTeam {
+    name: string,
+    coach: {
+      name: string,
+    },
+    tv: number,
+    roster: {
+      name: string,
+    },
+};
+
+export interface BlackboxConfig {
+  pauseDuration: number,
+  activeDuration: number,
+}
+
+export interface BlackboxMatch {
+  home: BlackboxTeam,
+  away: BlackboxTeam,
+};
+
+export interface Blackbox {
+  userActivated: boolean,
+  status: BlackboxStatus,
+  secondsRemaining: number,
+  coachCount: number,
+};

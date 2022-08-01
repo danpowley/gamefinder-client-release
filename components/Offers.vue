@@ -88,7 +88,7 @@ import GameFinderHelpers from "../include/GameFinderHelpers";
         startDialogOfferIsActive: {
             type: Boolean,
             required: true
-        }
+        },
     },
     watch: {
         matchesLastUpdated: function () {

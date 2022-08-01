@@ -96,6 +96,11 @@
       overflow: initial;
       padding: 0;
 
+      .blackboxwarning {
+        font-size: 14pt;
+        padding: 10px 0 0 6px;
+      }
+
       .lfglist > div {
         display: contents;
 
@@ -128,6 +133,7 @@
       }
 
       .lfgteam {
+        position: relative;
         border-bottom: solid @Forest 1px;
         height: 38px;
         padding: 5px;
@@ -156,6 +162,20 @@
             font-size: 9pt;
             font-style: oblique;
             color: lighten(@Jet, 20%);
+          }
+
+          .teammode {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            .mode {
+              font-size: 9pt;
+              font-weight: bold;
+              text-align: right;
+            }
+            a {
+              font-size: 8pt;
+            }
           }
         }
       }
@@ -329,6 +349,30 @@
       display: block;
       line-height: 20px;
       padding-right: 2px;
+
+      &.blackboxuseractivated {
+        .card {
+          cursor: default;
+          &.highlight {
+            border-color: gold;
+            &:hover {
+              background-color: @OldLace; // cancel hover effect when locked for blackbox
+              border-color: gold; // cancel hover effect when locked for blackbox
+            }
+          }
+
+          &.lowlight {
+            opacity: 0.3;
+            &:hover {
+              border-color: @Eggshell; // cancel hover effect when locked for blackbox
+            }
+          }
+
+          .opponentcount, .new {
+            display: none;
+          }
+        }
+      }
 
       .card {
         line-height: 1em;
@@ -530,20 +574,92 @@
     }
   }
 
+  .blackboxheader {
+    position: relative;
+    .blackboxstatus {
+      font-size: 65%;
+      position: absolute;
+      top: 4px;
+      right: 6px;
+    }
+  }
+
   #blackboxwrapper {
-    overflow-anchor: none;
-    min-height: 100px;
-
-    .nextdraw {
-      margin-bottom: 10px;
+    font-size: 9pt;
+    position: relative;
+    a.blackboxrounds {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+    }
+    .blackboxpaused {
+      display: flex;
+      flex-direction: column;
+      height: 90px;
+      .blackboxtop {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .timerwrapper {
+        flex-grow: 0;
+        height: 3px;
+        position: relative;
+        .timer {
+          position: absolute;
+          height: 3px;
+          background: @brightGreen;
+        }
+      }
+      .blackboxbottom {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
-    .teamsready {
-      margin: 10px 0;
-    }
-
-    .infonote {
-      margin-top: 10px;
+    .blackboxactive {
+      display: flex;
+      flex-direction: column;
+      height: 90px;
+      .blackboxtop {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+      }
+      .timerwrapper {
+        flex-grow: 0;
+        height: 3px;
+        position: relative;
+        .timer {
+          position: absolute;
+          height: 3px;
+          background: @brightGreen;
+        }
+      }
+      .blackboxbottom {
+        flex-grow: 1;
+        height: 42px;
+        .timeremaining {
+          margin: 5px 0 5px 0;
+          text-align: center;
+        }
+        .activationcontrolsouter {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .activationcontrolsinner {
+            align-items: center;
+            button {
+              font-size: 9pt;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -961,6 +1077,51 @@
   .teamsettingsouter {
     .mixin_modalouter();
     .teamsettingsinner {
+      .mixin_modalinner();
+      min-height: 270px;
+
+      .teamsettingstitle {
+        display: flex;
+        padding-bottom: 5px;
+        border-bottom: solid @Jet 1px;
+        margin-bottom: 20px;
+        .icon {
+          margin-right: 5px;
+        }
+        .details {
+          .name {
+            font-size: 11pt;
+          }
+          .desc {
+            font-size: 9pt;
+            font-style: oblique;
+          }
+        }
+      }
+
+      .currentmode {
+        margin: 10px 0;
+      }
+
+      .newmodechoice {
+        select {
+          margin-right: 10px;
+        }
+        .confirm {
+          margin-right: 10px;
+        }
+      }
+
+      .confirm {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .blackboxpreviousdrawouter {
+    .mixin_modalouter();
+    .blackboxpreviousdrawinner {
       .mixin_modalinner();
     }
   }

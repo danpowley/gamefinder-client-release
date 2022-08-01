@@ -22,4 +22,8 @@ export default class GameFinderPolicies {
     public static teamIsCompetitiveDivision(team: any): boolean {
         return team.division === 'Competitive';
     }
+
+    public static teamCanJoinBlackboxDraw(team: any): boolean {
+        return GameFinderPolicies.teamIsCompetitiveDivision(team) && team.isInTournament === false && team.lfgMode !== 'Open';
+    }
 }

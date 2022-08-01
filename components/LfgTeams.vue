@@ -2,6 +2,9 @@
     <div id="lfgteams" class="basicbox" style="margin-top: 20px;">
         <div class="header">Select Teams</div>
         <div class="content" id="lfgteamswrapper">
+            <div class="blackboxwarning" v-if="blackboxUserActivated">
+                <strong>PLEASE NOTE: </strong> You are currently activated for Blackbox.
+            </div>
             <div class="controls">
                 <div class="selectall">
                     <input type="checkbox" id="selectallteamsbegin" class="selectallteams" @change="toggleAll"/>
@@ -29,6 +32,12 @@
                                 <div class="teamdetails">
                                     <div class="teamname">{{ team.name }}</div>
                                     <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                                    <div class="teammode" v-if="team.division === 'Competitive'">
+                                        <div class="mode" title="Competitive division mode: Mixed / Strict / Open">
+                                            {{ team.lfgMode }}
+                                        </div>
+                                        <a href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Change mode</a>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -72,7 +81,11 @@ import IBackendApi from "../include/IBackendApi";
         coachName: {
             type: String,
             required: true
-        }
+        },
+        blackboxUserActivated: {
+            type: Boolean,
+            required: true
+        },
     }
 })
 export default class LfgTeamsComponent extends Vue {
@@ -90,7 +103,6 @@ export default class LfgTeamsComponent extends Vue {
 
     public async showLfg() {
         this.activateTeamsButtonClicked = true;
-        await this.updateBlackboxData();
         this.$emit('show-lfg');
     }
 
@@ -131,17 +143,6 @@ export default class LfgTeamsComponent extends Vue {
             }
         }
         return teamsByDivision;
-    }
-
-    private async updateBlackboxData() {
-        const teams = await this.backendApi.allTeams(this.$props.coachName);
-        const availableTeams = teams.filter(GameFinderPolicies.teamIsCompetitiveDivision);
-        const chosenTeams = availableTeams.filter(GameFinderPolicies.teamIsLfg);
-
-        this.$emit('blackbox-data', {
-            available: availableTeams.length,
-            chosen: chosenTeams.length
-        });
     }
 
     public toggleAll(event) {
@@ -209,6 +210,10 @@ export default class LfgTeamsComponent extends Vue {
 
     public getTeamLogoUrl(team: any): string {
         return GameFinderHelpers.getTeamLogoUrl(team);
+    }
+
+    public openModal(name: string, modalSettings: any) {
+        this.$emit('open-modal', name, modalSettings);
     }
 }
 </script>

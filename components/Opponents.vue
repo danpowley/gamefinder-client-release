@@ -122,7 +122,7 @@ import { Coach } from "../include/Interfaces";
         hiddenCoachCount: {
             type: Number,
             required: true
-        }
+        },
     },
     watch: {
         matchesAndTeamsStateLastUpdated: function () {

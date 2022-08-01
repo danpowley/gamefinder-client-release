@@ -1,7 +1,7 @@
 import Axios from "axios";
 import FormData from 'form-data';
 import IBackendApi from "./IBackendApi"
-import { Coach, GameFinderVar, UserSettings } from "./Interfaces";
+import { BlackboxConfig, Coach, GameFinderVar, LfgMode, UserSettings } from "./Interfaces";
 
 export default class FumbblApi implements IBackendApi {
     public isAxiosError(error: Error): boolean {
@@ -104,5 +104,28 @@ export default class FumbblApi implements IBackendApi {
 
     public async unhideCoach(coachName: string): Promise<void> {
         await Axios.post('/api/coach/unhide/' + coachName);
+    }
+
+    public async changeLfgMode(teamId: number, lfgMode: LfgMode): Promise<void> {
+        var bodyFormData = new FormData();
+        bodyFormData.append('mode', lfgMode);
+        await Axios({
+            method: "post",
+            url: '/api/team/setLfgMode/' + teamId,
+            data: bodyFormData,
+        });
+    }
+
+    public async blackboxConfig(): Promise<BlackboxConfig> {
+        const result = await Axios.post('/api/gamefinder/blackboxconfig');
+        return result.data;
+    }
+
+    public async blackboxActivate(): Promise<void> {
+        await Axios.post('/api/blackbox/activate');
+    }
+
+    public async blackboxDeactivate(): Promise<void> {
+        await Axios.post('/api/blackbox/deactivate');
     }
 }

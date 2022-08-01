@@ -54,4 +54,11 @@ export default class GameFinderHelpers {
         const tvDiff = largerTeamValue - smallerTeamValue;
         return Math.round((tvDiff / largerTeamValue) * 100);
     }
+
+    public static pluralise(quantity: number, singular: string, plural: string): string {
+        if (quantity < 0) {
+            throw Error('Cannot pluralise negative quantities.');
+        }
+        return quantity === 1 ? singular : plural;
+    }
 }
