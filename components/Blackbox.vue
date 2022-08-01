@@ -111,7 +111,7 @@ export default class BlackboxComponent extends Vue {
             const approxSecondsRemaining = Math.ceil(this.$props.blackbox.secondsRemaining / 10) * 10;
             return `${approxSecondsRemaining} ${GameFinderHelpers.pluralise(approxSecondsRemaining, 'second', 'seconds')}`;
         }
-        return `${minutesRemaining} minute${GameFinderHelpers.pluralise(minutesRemaining, 'minute', 'minutes')}`;
+        return `${minutesRemaining} ${GameFinderHelpers.pluralise(minutesRemaining, 'minute', 'minutes')}`;
     }
 
     public pluralise(quantity: number, singular: string, plural: string): string {
