@@ -1,5 +1,5 @@
 <template>
-    <div id="opponentslist" @mouseenter="setUiUpdatesPaused(true)" @mouseleave="setUiUpdatesPaused(false)">
+    <div id="opponentslist" @mouseenter="setUiUpdatesPaused(true)" @mouseleave="setUiUpdatesPaused(false)" :class="{fadeout: fadeOut}">
         <div class="expandcollapseall" v-show="visibleOpponents.length > 0"><a href="#" @click.prevent="expandAllOpponents()">Expand</a> <a href="#" @click.prevent="collapseAllOpponents()">Collapse</a></div>
         <div>
             <strong>{{ isOwnTeamSelected ? 'Opponents filtered by selected team.' : 'Opponents' }}</strong>
@@ -91,6 +91,10 @@ import { Coach } from "../include/Interfaces";
 @Component({
     props: {
         isDevMode: {
+            type: Boolean,
+            required: true
+        },
+        fadeOut: {
             type: Boolean,
             required: true
         },

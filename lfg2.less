@@ -237,7 +237,7 @@
       }
       .name {
         font-size: 14pt;
-        max-width: 200px;
+        max-width: 220px;
         .mixin_abbreviate();
       }
     }
@@ -267,10 +267,38 @@
   #launchgame {
     width: 600px;
     &.basicbox {
-      margin: 20px auto 0 auto;
+      margin: 20px auto 0px auto;
     }
     .header {
       text-align: center;
+    }
+    .blackboxmatch {
+      margin-bottom: 30px;
+      display: flex;
+      .homeicon {
+        width: 64px;
+      }
+      .details {
+        flex-grow: 1;
+        display: flex;
+        .homedetails {
+          padding-left: 10px;
+          width: 50%;
+        }
+        .awaydetails {
+          padding-right: 10px;
+          width: 50%;
+          text-align: right;
+        }
+      }
+      .awayicon {
+        width: 64px;
+      }
+      .name {
+        font-size: 12pt;
+        max-width: 220px;
+        .mixin_abbreviate();
+      }
     }
   }
 

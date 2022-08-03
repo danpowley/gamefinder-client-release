@@ -25,17 +25,22 @@
                         Draw in {{ timeRemainingDisplay }}
                     </div>
                     <div class="activationcontrolsouter">
-                        <div class="activationcontrolsinner" v-if="hasBlackboxTeamsActivated">
+                        <div class="activationcontrolsinner" v-if="blackboxTeamCount > 0">
                             <div v-if="!pleaseWait">
-                                <button v-if="userActivated" type="checkbox" @click="handleDeactivation">Deactivate my teams</button>
-                                <button v-if="!userActivated" type="checkbox" @click="handleActivation">Activate my teams</button>
+                                <button v-if="userActivated" @click="handleDeactivation">Deactivate my teams</button>
+                                <button v-if="!userActivated" @click="handleActivation">Activate my teams</button>
                             </div>
                             <div v-else>
                                 Please wait {{ pleaseWait }}
                             </div>
                         </div>
                         <div v-else>
-                            Use 'Choose teams' to select valid teams.
+                            <template v-if="userActivated">
+                                <strong>0 teams:</strong> 'Choose teams' or <a href="#" @click.prevent="handleDeactivation">deactivate</a>.
+                            </template>
+                            <template v-else>
+                                Use 'Choose teams' to select valid teams.
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -56,8 +61,8 @@ import { BlackboxConfig } from "../include/Interfaces";
 
 @Component({
     props: {
-        hasBlackboxTeamsActivated: {
-            type: Boolean,
+        blackboxTeamCount: {
+            type: Number,
             required: true,
         },
         blackbox: {

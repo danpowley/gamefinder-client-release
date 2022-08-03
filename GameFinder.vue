@@ -18,7 +18,7 @@
             @show-lfg="showLfg"
             @open-modal="openModal"></lfgteams>
 
-        <div id="startdialog" class="basicbox" v-if="startDialogOffer !== null">
+        <div id="startdialog" class="basicbox" v-if="startDialogOffer !== null && !isLockedForBlackboxDraw">
             <div class="header">Game offered</div>
             <div class="content">
                 <div class="teams">
@@ -85,6 +85,40 @@
                     </template>
                 </template>
                 <template v-else>
+                    <template v-if="launchGameOffer && downloadJnlpOffer && downloadJnlpOffer.isBlackbox">
+                        <div class="blackboxmatch">
+                            <div class="homeicon">
+                                <img :src="getLargeTeamLogoUrl(launchGameOffer.home)" />
+                            </div>
+                            <div class="details">
+                                <div class="homedetails">
+                                    <div class="name">
+                                        {{ launchGameOffer.home.team }}
+                                    </div>
+                                    <div class="coach">
+                                        {{ launchGameOffer.home.coach.name }} ({{ launchGameOffer.home.coach.rating }})
+                                    </div>
+                                    <div class="desc">
+                                        TV {{ launchGameOffer.home.tv }} {{ launchGameOffer.home.roster.name }}
+                                    </div>
+                                </div>
+                                <div class="awaydetails">
+                                    <div class="name">
+                                        {{ launchGameOffer.away.team }}
+                                    </div>
+                                    <div class="coach">
+                                        {{ launchGameOffer.away.coach.name }} ({{ launchGameOffer.away.coach.rating }})
+                                    </div>
+                                    <div class="desc">
+                                        {{ launchGameOffer.away.roster.name }} TV {{ launchGameOffer.away.tv }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="awayicon">
+                                <img :src="getLargeTeamLogoUrl(launchGameOffer.away)" />
+                            </div>
+                        </div>
+                    </template>
                     Good luck, your download should start automatically (you can also join from your coach home page).
                     <iframe :src="downloadJnlpOffer ? `https://fumbbl.com/ffblive.jnlp?id=${downloadJnlpOffer.home.id}` : ''" height="0" width="0" />
                     <div v-if="allowRejoinAfterDownload">
@@ -98,7 +132,7 @@
             <div class="overallstatus">
                 <span class="overallinfo">
                     <span v-if="blackboxUserActivated">
-                        Activated for Blackbox with {{ countBlackboxTeamsActivated }} {{ pluralise(countBlackboxTeamsActivated, 'team', 'teams') }}
+                        Activated for Blackbox with {{ blackboxTeamCount }} {{ pluralise(blackboxTeamCount, 'team', 'teams') }}
                         ({{ me.teams.length }} {{ pluralise(me.teams.length, 'team', 'teams') }} total).
                     </span>
                     <span v-else>
@@ -117,13 +151,13 @@
                 <blackbox
                     v-if="featureFlags.blackbox"
                     :is-dev-mode="isDevMode"
-                    :has-blackbox-teams-activated="hasBlackboxTeamsActivated"
+                    :blackbox-team-count="blackboxTeamCount"
                     :blackbox="matchesAndTeamsState.blackbox"
                     @open-modal="openModal"></blackbox>
 
                 <offers
-                    v-show="!isLockedForBlackboxDraw"
                     :is-dev-mode="isDevMode"
+                    :fade-out="isLockedForBlackboxDraw"
                     :matches="matchesAndTeamsState.matches"
                     :matches-last-updated="matchesAndTeamsStateLastUpdated"
                     :offers="offers"
@@ -144,12 +178,13 @@
                     :team="selectedOwnTeam"
                     :teamSettingsEnabled="featureFlags.teamSettings"
                     :blackbox-user-activated="blackboxUserActivated"
+                    :is-locked-for-blackbox-draw="isLockedForBlackboxDraw"
                     @deselect-team="deselectTeam"
                     @open-modal="openModal"></selectedownteam>
 
                 <opponents
-                    v-show="!isLockedForBlackboxDraw"
                     :is-dev-mode="isDevMode"
+                    :fade-out="isLockedForBlackboxDraw"
                     :coach-name="coachName"
                     :matches-and-teams-state="matchesAndTeamsState"
                     :matches-and-teams-state-last-updated="matchesAndTeamsStateLastUpdated"
@@ -674,6 +709,9 @@ export default class GameFinder extends Vue {
     public handleLaunchGame(launchGameOffer: any | null): void {
         if (launchGameOffer !== null) {
             this.launchGameOffer = launchGameOffer;
+            if (this.blackboxUserActivated) {
+                this.backendApi.blackboxDeactivate();
+            }
         }
     }
 
@@ -801,12 +839,8 @@ export default class GameFinder extends Vue {
         await this.getState();
     }
 
-    public get countBlackboxTeamsActivated(): number {
+    public get blackboxTeamCount(): number {
         return this.me.teams.filter(GameFinderPolicies.teamCanJoinBlackboxDraw).length
-    }
-
-    public get hasBlackboxTeamsActivated(): boolean {
-        return this.countBlackboxTeamsActivated > 0;
     }
 
     public get blackboxUserActivated(): boolean {

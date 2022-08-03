@@ -1,6 +1,13 @@
 <template>
     <div id="selectedownteam">
-        <template v-if="blackboxUserActivated">
+        <template v-if="isLockedForBlackboxDraw">
+            <div>
+                <div>
+                    You are activated to join the next Blackbox round. The draw is taking place very soon, no more offers can be sent / received.
+                </div>
+            </div>
+        </template>
+        <template v-else-if="blackboxUserActivated">
             <div>
                 <div>
                     You are activated to join the next Blackbox round. You can still send and receive Gamefinder offers up until 30 seconds before the draw.
@@ -50,7 +57,11 @@ import GameFinderHelpers from '../include/GameFinderHelpers';
         blackboxUserActivated: {
             type: Boolean,
             required: true
-        }
+        },
+        isLockedForBlackboxDraw: {
+            type: Boolean,
+            required: true
+        },
     }
 })
 export default class SelectedOwnTeamComponent extends Vue {
