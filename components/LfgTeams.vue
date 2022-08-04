@@ -36,7 +36,12 @@
                                         <div class="mode" title="Competitive division mode: Mixed / Strict / Open">
                                             {{ team.lfgMode }}
                                         </div>
-                                        <a href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Change mode</a>
+                                        <template v-if="team.modeLock === true">
+                                            <span class="modelocked">Mode locked</span>
+                                        </template>
+                                        <template v-else>
+                                            <a href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Change mode</a>
+                                        </template>
                                     </div>
                                 </div>
                             </div>

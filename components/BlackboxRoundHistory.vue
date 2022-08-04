@@ -49,11 +49,6 @@ import IBackendApi from "../include/IBackendApi";
             type: Boolean,
             required: true
         },
-        blackbox: {
-            validator: function (blackbox) {
-                return typeof blackbox === 'object' || blackbox === null;
-            }
-        }
     },
 })
 export default class BlackboxRoundHistoryComponent extends Vue {

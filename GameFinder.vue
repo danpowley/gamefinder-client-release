@@ -223,8 +223,7 @@
 
         <blackboxroundhistory
             :is-dev-mode="isDevMode"
-            v-if="modalBlackboxPreviousDraw"
-            :blackbox="matchesAndTeamsState.blackbox"
+            v-if="modalBlackboxRoundHistory"
             @close-modal="closeModal"></blackboxroundhistory>
 
         <stateupdatespaused
@@ -313,7 +312,7 @@ export default class GameFinder extends Vue {
     public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
     public modalTeamSettingsTeam: any | null = null;
     public modalSettingsShow: boolean = false;
-    public modalBlackboxPreviousDraw: boolean = false;
+    public modalBlackboxRoundHistory: boolean = false;
 
     async beforeMount() {
         const appElement = document.getElementById("vuecontent");
@@ -776,7 +775,7 @@ export default class GameFinder extends Vue {
         } else if (modalName === 'SETTINGS') {
             this.modalSettingsShow = true;
         } else if (modalName === 'BLACKBOX_ROUNDS') {
-            this.modalBlackboxPreviousDraw = true;
+            this.modalBlackboxRoundHistory = true;
         }
     }
 
@@ -821,7 +820,7 @@ export default class GameFinder extends Vue {
         this.modalRosterSettings = null;
         this.modalTeamSettingsTeam = null;
         this.modalSettingsShow = false;
-        this.modalBlackboxPreviousDraw = false;
+        this.modalBlackboxRoundHistory = false;
     }
 
     public getLargeTeamLogoUrl(team: any): string {
