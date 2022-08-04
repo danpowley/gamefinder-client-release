@@ -19,26 +19,10 @@ export type LfgMode = 'Strict' | 'Mixed' | 'Open';
 
 export type BlackboxStatus = 'Active' | 'Paused' | 'Offline';
 
-export interface BlackboxTeam {
-    name: string,
-    coach: {
-      name: string,
-    },
-    tv: number,
-    roster: {
-      name: string,
-    },
-};
-
 export interface BlackboxConfig {
   pauseDuration: number,
   activeDuration: number,
 }
-
-export interface BlackboxMatch {
-  home: BlackboxTeam,
-  away: BlackboxTeam,
-};
 
 export interface Blackbox {
   userActivated: boolean,

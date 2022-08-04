@@ -123,4 +123,9 @@ export default class DummyApi implements IBackendApi {
     public async blackboxDeactivate(): Promise<void> {
         await Axios.post(this.getFullApiEndPointUrl('/api/blackbox/deactivate'));
     }
+
+    public async blackboxRoundHistory(): Promise<any[]> {
+        const result = await Axios.post(this.getFullApiEndPointUrl('/api/blackbox/roundHistory'));
+        return result.data;
+    }
 }

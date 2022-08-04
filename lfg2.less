@@ -273,7 +273,7 @@
       text-align: center;
     }
     .blackboxmatch {
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       display: flex;
       .homeicon {
         width: 64px;
@@ -299,6 +299,9 @@
         max-width: 220px;
         .mixin_abbreviate();
       }
+    }
+    .viewallrounds {
+      margin: 10px 0;
     }
   }
 
@@ -1147,10 +1150,59 @@
     }
   }
 
-  .blackboxpreviousdrawouter {
+  .blackboxroundhistoryouter {
     .mixin_modalouter();
-    .blackboxpreviousdrawinner {
+    .blackboxroundhistoryinner {
       .mixin_modalinner();
+
+      .basicbox {
+        .header {
+          text-align: center;
+        }
+        .content {
+          background-color: @White;
+          padding: 0;
+          :last-child {
+            border-bottom: none;
+          }
+        }
+      }
+
+      .blackboxmatch {
+        border-bottom: solid black 1px;
+        display: flex;
+        padding: 5px 0 3px 0;
+        .homeicon {
+          padding: 4px 8px 4px 8px;
+        }
+        .homedetails {
+          padding-left: 10px;
+          width: 50%;
+          text-align: right;
+        }
+        .awaydetails {
+          padding-right: 10px;
+          width: 50%;
+          text-align: left;
+        }
+        .awayicon {
+          padding: 4px 8px 4px 8px;
+        }
+        .versus {
+          padding-top: 10px;
+          width: 90px;
+          text-align: center;
+
+        }
+        .name {
+          font-size: 11pt;
+          max-width: 280px;
+          .mixin_abbreviate();
+        }
+        .desc {
+          font-size: 9pt;
+        }
+      }
     }
   }
 

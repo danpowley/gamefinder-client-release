@@ -128,4 +128,9 @@ export default class FumbblApi implements IBackendApi {
     public async blackboxDeactivate(): Promise<void> {
         await Axios.post('/api/blackbox/deactivate');
     }
+
+    public async blackboxRoundHistory(): Promise<any[]> {
+        const result = await Axios.post('/api/blackbox/roundHistory');
+        return result.data;
+    }
 }

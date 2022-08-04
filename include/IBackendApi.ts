@@ -42,4 +42,6 @@ export default interface IBackendApi {
     blackboxActivate(): void;
 
     blackboxDeactivate(): void;
+
+    blackboxRoundHistory(): Promise<any[]>;
 }
