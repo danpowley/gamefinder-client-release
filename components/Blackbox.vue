@@ -27,8 +27,8 @@
                     <div class="activationcontrolsouter">
                         <div class="activationcontrolsinner" v-if="blackboxTeamCount > 0">
                             <div v-if="!pleaseWait">
-                                <button v-if="userActivated" @click="handleDeactivation">Deactivate my teams</button>
-                                <button v-if="!userActivated" @click="handleActivation">Activate my teams</button>
+                                <button v-if="userActivated" @click="handleDeactivation">Leave the Draw</button>
+                                <button v-if="!userActivated" @click="handleActivation">Join the Draw</button>
                             </div>
                             <div v-else>
                                 Please wait {{ pleaseWait }}
@@ -36,7 +36,7 @@
                         </div>
                         <div v-else>
                             <template v-if="userActivated">
-                                <strong>0 teams:</strong> 'Choose teams' or <a href="#" @click.prevent="handleDeactivation">deactivate</a>.
+                                <strong>0 teams:</strong> 'Choose teams' or <a href="#" @click.prevent="handleDeactivation">leave draw</a>.
                             </template>
                             <template v-else>
                                 Use 'Choose teams' to select valid teams.
