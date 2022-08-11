@@ -186,6 +186,10 @@ export default class OffersComponent extends Vue {
         this.$emit('launch-game', launchGameOffer);
         this.$emit('download-jnlp', downloadJnlpOffer);
         this.$emit('scheduling-error', schedulingErrorMessage);
+
+        if (downloadJnlpOffer !== null && downloadJnlpOffer.isBlackbox) {
+            this.$emit('blackbox-download-jnlp-id', downloadJnlpOffer.home.id);
+        }
     }
 
     private processOffers() {

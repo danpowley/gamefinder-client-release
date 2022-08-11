@@ -17,7 +17,7 @@ export type GameFinderVar = 'gamefinder.enableSound' | 'gamefinder.zenMode' | 'g
 
 export type LfgMode = 'Strict' | 'Mixed' | 'Open';
 
-export type BlackboxStatus = 'Active' | 'Paused' | 'Offline';
+export type BlackboxStatus = 'Paused' | 'Active' | 'Pending' | 'Offline';
 
 export interface BlackboxConfig {
   pauseDuration: number,

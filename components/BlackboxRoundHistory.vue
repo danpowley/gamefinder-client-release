@@ -1,74 +1,84 @@
 <template>
-    <div class="blackboxroundhistoryouter">
-        <div class="blackboxroundhistoryinner">
-            <a href="#" class="closemodal" @click.prevent="close">&times;</a>
-            <div class="settingstitle">Blackbox round history</div>
-            <div v-for="round in rounds" :key="round.date" class="basicbox">
-                <div class="header">Round of {{ round.date }}</div>
-                <div class="content">
-                    <div class="blackboxmatch" v-for="match in round.matches" :key="match.team1.coach + match.team2.coach">
-                        <div class="homedetails">
-                            <div class="name">
-                                {{ match.team1.teamName }}
+    <div class="blackboxroundhistory">
+        <template v-for="round, key in rounds">
+            <div :key="round.date">
+                <div v-if="isNewDraw && key === 0" class="latestroundheader">
+                    Results of latest draw
+                </div>
+                <div class="basicbox" :class="{mutedbasicbox: !(isNewDraw && key === 0)}">
+                    <div class="header">Round of {{ round.date }}</div>
+                    <div class="content">
+                        <template v-if="round.matches.length > 0">
+                            <div class="blackboxmatch" v-for="match in round.matches" :key="match.team1.coach + match.team2.coach">
+                                <div class="homedetails">
+                                    <div class="name">
+                                        {{ match.team1.teamName }}
+                                    </div>
+                                    <div class="desc">
+                                        ({{ match.team1.coachRating }}) <span :class="{isusercoach: match.team1.isUserCoach}">{{ match.team1.coach }}</span> {{ match.team1.teamValue/1000 }}k {{ match.team1.roster }}
+                                    </div>
+                                </div>
+                                <div class="homeicon">
+                                    <img :src="'https://fumbbl.com/i/' + match.team1.logo32">
+                                </div>
+                                <div v-if="match.team1.isUserCoach || match.team2.isUserCoach" class="versus ownmatch">
+                                    &#x2605;
+                                </div>
+                                <div v-else class="versus">
+                                    versus
+                                </div>
+                                <div class="awayicon">
+                                    <img :src="'https://fumbbl.com/i/' + match.team2.logo32">
+                                </div>
+                                <div class="awaydetails">
+                                    <div class="name">
+                                        {{ match.team2.teamName }}
+                                    </div>
+                                    <div class="desc">
+                                        {{ match.team2.roster }} {{ match.team2.teamValue/1000 }}k <span :class="{isusercoach: match.team2.isUserCoach}">{{ match.team2.coach }}</span> ({{ match.team2.coachRating }})
+                                    </div>
+                                </div>
                             </div>
-                            <div class="desc">
-                                ({{ match.team1.coachRating }}) {{ match.team1.coach }} {{ match.team1.teamValue/1000 }}k {{ match.team1.roster }}
+                        </template>
+                        <template v-else>
+                            <div class="blackboxnomatches">
+                                No matches were able to me made in this draw.
                             </div>
-                        </div>
-                        <div class="homeicon">
-                            <img :src="'https://fumbbl.com/i/' + match.team1.logo32">
-                        </div>
-                        <div class="versus">versus</div>
-                        <div class="awayicon">
-                            <img :src="'https://fumbbl.com/i/' + match.team2.logo32">
-                        </div>
-                        <div class="awaydetails">
-                            <div class="name">
-                                {{ match.team2.teamName }}
-                            </div>
-                            <div class="desc">
-                                {{ match.team2.roster }} {{ match.team2.teamValue/1000 }}k {{ match.team2.coach }} ({{ match.team2.coachRating }})
-                            </div>
-                        </div>
+                        </template>
                     </div>
                 </div>
+                <div v-if="isNewDraw && key === 0" class="previousroundsheader">
+                    Previous rounds
+                </div>
             </div>
-        </div>
+        </template>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import GameFinderHelpers from "../include/GameFinderHelpers";
-import IBackendApi from "../include/IBackendApi";
 
 @Component({
     props: {
-        isDevMode: {
-            type: Boolean,
-            required: true
+        rawRoundHistory: {
+            type: Object,
+            required: true,
         },
+        isNewDraw: {
+            type: Boolean,
+            required: true,
+        },
+        coachName: {
+            type: String,
+            required: true,
+        }
     },
 })
 export default class BlackboxRoundHistoryComponent extends Vue {
-    private backendApi: IBackendApi | null = null;
-    public rounds: any[] = [];
-
-    public close() {
-        this.$emit('close-modal');
-    }
-
-    public mounted() {
-        this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
-        this.prepareRoundHistory();
-    }
-
-    public async prepareRoundHistory() {
-        const rawRoundHistory: any[] = await this.backendApi.blackboxRoundHistory();
-
+    public get rounds(): any[] {
         const rounds = [];
-        for (const round of rawRoundHistory) {
+        for (const round of this.$props.rawRoundHistory.rawRounds) {
             const roundDateString = round.round.slice(0, -3);
             const teamData = round.teamData;
             const scheduledMatches = round.data.ScheduledMatches;
@@ -84,6 +94,7 @@ export default class BlackboxRoundHistoryComponent extends Vue {
                         if (teamId == team1Id) {
                             match.team1 = {
                                 coach: coach.coach,
+                                isUserCoach: coach.coach === this.$props.coachName,
                                 coachRating: coach.rating,
                                 teamName: coach.teams[teamId].team,
                                 roster: coach.teams[teamId].roster,
@@ -95,6 +106,7 @@ export default class BlackboxRoundHistoryComponent extends Vue {
                         if (teamId == team2Id) {
                             match.team2 = {
                                 coach: coach.coach,
+                                isUserCoach: coach.coach === this.$props.coachName,
                                 coachRating: coach.rating,
                                 teamName: coach.teams[teamId].team,
                                 roster: coach.teams[teamId].roster,
@@ -110,15 +122,13 @@ export default class BlackboxRoundHistoryComponent extends Vue {
                 }
             }
 
-            if (matches.length > 0) {
-                rounds.push({
-                    date: roundDateString,
-                    matches: matches,
-                });
-            }
+            rounds.push({
+                date: roundDateString,
+                matches: matches,
+            });
         }
 
-        this.rounds = rounds;
+        return rounds;
     }
 }
 </script>

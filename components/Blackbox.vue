@@ -1,10 +1,13 @@
 <template>
     <div class="basicbox" v-if="blackbox !== null">
         <div class="header blackboxheader">Blackbox<span class="blackboxstatus">{{ blackbox.status }}</span></div>
-        <div class="content" id="blackboxwrapper">
-            <a href="#" @click.prevent="openModal('BLACKBOX_ROUNDS')" class="blackboxrounds">Rounds</a>
-            <div v-if="zeroSecondsRemaining" class="blackboxpaused">
-                Please wait...
+        <div v-if="matchScheduled" class="content">
+            Match scheduled.
+        </div>
+        <div v-else class="content" id="blackboxwrapper">
+            <a href="#" @click.prevent="openModal('BLACKBOX_ROUNDS')" class="blackboxrounds">{{ lastRoundGameCount.count }} {{ pluralise(lastRoundGameCount.count, 'match', 'matches') }} at {{ lastRoundGameCount.round }}</a>
+            <div v-if="blackbox.status === 'Pending'" class="blackboxpaused">
+                Draw taking place.
             </div>
             <div v-else-if="blackbox.status === 'Paused'" class="blackboxpaused">
                 <div class="blackboxtop">
@@ -12,7 +15,12 @@
                 </div>
                 <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.pauseDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.pauseDuration) + '%'}"></div></div>
                 <div class="blackboxbottom">
-                    Active in {{ timeRemainingDisplay }}
+                    <template v-if="timeRemainingDisplay">
+                        Active in {{ timeRemainingDisplay }}
+                    </template>
+                    <template v-else>
+                        Please wait...
+                    </template>
                 </div>
             </div>
             <div v-else-if="blackbox.status === 'Active'" class="blackboxactive">
@@ -22,7 +30,12 @@
                 <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.activeDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.activeDuration) + '%'}"></div></div>
                 <div class="blackboxbottom">
                     <div class="timeremaining">
-                        Draw in {{ timeRemainingDisplay }}
+                        <template v-if="timeRemainingDisplay">
+                            Draw in {{ timeRemainingDisplay }}
+                        </template>
+                        <template v-else>
+                            Please wait...
+                        </template>
                     </div>
                     <div class="activationcontrolsouter">
                         <div class="activationcontrolsinner" v-if="blackboxTeamCount > 0">
@@ -73,6 +86,15 @@ import { BlackboxConfig } from "../include/Interfaces";
                 return typeof blackbox === 'object' || blackbox === null;
             }
         },
+        lastRoundGameCount: {
+            validator: function (lastRoundGameCount) {
+                return typeof lastRoundGameCount === 'object';
+            }
+        },
+        matchScheduled: {
+            type: Boolean,
+            required: true,
+        },
         isDevMode: {
             type: Boolean,
             required: true
@@ -97,21 +119,17 @@ export default class BlackboxComponent extends Vue {
     public handleActivation() {
         this.pleaseWait = ' activation in progress.';
         setTimeout(() => { this.pleaseWait = null; }, 3000);
-        this.backendApi.blackboxActivate();
+        this.$emit('activated');
     }
 
     public handleDeactivation() {
         this.pleaseWait = ' deactivation in progress';
         setTimeout(() => { this.pleaseWait = null; }, 3000);
-        this.backendApi.blackboxDeactivate();
-    }
-
-    public get zeroSecondsRemaining(): boolean {
-        return this.$props.blackbox.secondsRemaining === 0;
+        this.$emit('deactivated');
     }
 
     public get timeRemainingDisplay(): string {
-        if (this.zeroSecondsRemaining) {
+        if (this.$props.blackbox.secondsRemaining === 0) {
             return '';
         }
         const minutesRemaining = Math.ceil(this.$props.blackbox.secondsRemaining / 60);

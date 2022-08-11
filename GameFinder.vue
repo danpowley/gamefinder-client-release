@@ -85,43 +85,6 @@
                     </template>
                 </template>
                 <template v-else>
-                    <template v-if="launchGameOffer && downloadJnlpOffer && downloadJnlpOffer.isBlackbox">
-                        <div class="blackboxmatch">
-                            <div class="homeicon">
-                                <img :src="getLargeTeamLogoUrl(launchGameOffer.home)" />
-                            </div>
-                            <div class="details">
-                                <div class="homedetails">
-                                    <div class="name">
-                                        {{ launchGameOffer.home.team }}
-                                    </div>
-                                    <div class="coach">
-                                        {{ launchGameOffer.home.coach.name }} ({{ launchGameOffer.home.coach.rating }})
-                                    </div>
-                                    <div class="desc">
-                                        TV {{ launchGameOffer.home.tv }} {{ launchGameOffer.home.roster.name }}
-                                    </div>
-                                </div>
-                                <div class="awaydetails">
-                                    <div class="name">
-                                        {{ launchGameOffer.away.team }}
-                                    </div>
-                                    <div class="coach">
-                                        {{ launchGameOffer.away.coach.name }} ({{ launchGameOffer.away.coach.rating }})
-                                    </div>
-                                    <div class="desc">
-                                        {{ launchGameOffer.away.roster.name }} TV {{ launchGameOffer.away.tv }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="awayicon">
-                                <img :src="getLargeTeamLogoUrl(launchGameOffer.away)" />
-                            </div>
-                        </div>
-                        <div class="viewallrounds">
-                            <a href="#" @click.prevent="openModal('BLACKBOX_ROUNDS')">View Blackbox rounds</a>
-                        </div>
-                    </template>
                     Good luck, your download should start automatically (you can also join from your coach home page).
                     <iframe :src="downloadJnlpOffer ? `https://fumbbl.com/ffblive.jnlp?id=${downloadJnlpOffer.home.id}` : ''" height="0" width="0" />
                     <div v-if="allowRejoinAfterDownload">
@@ -156,6 +119,10 @@
                     :is-dev-mode="isDevMode"
                     :blackbox-team-count="blackboxTeamCount"
                     :blackbox="matchesAndTeamsState.blackbox"
+                    :last-round-game-count="lastBlackboxRoundGameCount"
+                    :match-scheduled="this.blackboxJoiningDraw.downloadJnlpId !== null"
+                    @activated="handleBlackboxActivation"
+                    @deactivated="handleBlackboxDeactivation"
                     @open-modal="openModal"></blackbox>
 
                 <offers
@@ -174,14 +141,22 @@
                     @show-dialog="handleShowDialog"
                     @launch-game="handleLaunchGame"
                     @download-jnlp="handleDownloadJnlp"
-                    @scheduling-error="handleSchedulingError"></offers>
+                    @scheduling-error="handleSchedulingError"
+                    @blackbox-download-jnlp-id="handleBlackboxDownloadJnlpId"></offers>
             </div>
             <div id="opponents">
+                <blackboxjoiningdraw
+                    v-if="blackboxJoiningDraw.previousRoundTimestamp !== null"
+                    :joining-draw="blackboxJoiningDraw"
+                    :raw-round-history="rawBlackboxRoundHistory"
+                    :coach-name="coachName"
+                    @close="continueAfterLaunch"></blackboxjoiningdraw>
+
                 <selectedownteam
                     :team="selectedOwnTeam"
                     :teamSettingsEnabled="featureFlags.teamSettings"
                     :blackbox-user-activated="blackboxUserActivated"
-                    :is-locked-for-blackbox-draw="isLockedForBlackboxDraw"
+                    :fade-out="isLockedForBlackboxDraw"
                     @deselect-team="deselectTeam"
                     @open-modal="openModal"></selectedownteam>
 
@@ -221,10 +196,11 @@
             :team="modalTeamSettingsTeam"
             @close-modal="closeModal"></teamsettings>
 
-        <blackboxroundhistory
-            :is-dev-mode="isDevMode"
-            v-if="modalBlackboxRoundHistory"
-            @close-modal="closeModal"></blackboxroundhistory>
+        <blackboxroundhistorymodal
+            :is-open="modalBlackboxRoundHistory"
+            :raw-round-history="rawBlackboxRoundHistory"
+            :coach-name="coachName"
+            @close-modal="closeModal"></blackboxroundhistorymodal>
 
         <stateupdatespaused
             :paused="stateUpdatesArePaused && !backendVersionRequiresRefresh"
@@ -251,7 +227,8 @@ import OffersComponent from "./components/Offers.vue";
 import OpponentsComponent from "./components/Opponents.vue";
 import StateUpdatesPausedComponent from "./components/StateUpdatesPaused.vue";
 import BackendVersionRefreshComponent from "./components/BackendVersionRefresh.vue";
-import BlackboxRoundHistoryComponent from "./components/BlackboxRoundHistory.vue";
+import BlackboxJoiningDrawComponent from "./components/BlackboxJoiningDraw.vue";
+import BlackboxRoundHistoryModalComponent from "./components/BlackboxRoundHistoryModal.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
 import { Blackbox, Coach, UserSettings } from "./include/Interfaces";
@@ -270,7 +247,20 @@ import { AxiosError } from "axios";
         'opponents': OpponentsComponent,
         'stateupdatespaused': StateUpdatesPausedComponent,
         'backendversionrefresh': BackendVersionRefreshComponent,
-        'blackboxroundhistory': BlackboxRoundHistoryComponent,
+        'blackboxjoiningdraw': BlackboxJoiningDrawComponent,
+        'blackboxroundhistorymodal': BlackboxRoundHistoryModalComponent,
+    },
+    watch: {
+        'matchesAndTeamsState.blackbox.status'(newVal, oldVal) {
+            if (newVal === 'Paused') {
+                // @ts-ignore
+                this.refreshBlackboxRoundHistory();
+            }
+        },
+        'matchesAndTeamsState.blackbox.secondsRemaining'() {
+            // @ts-ignore
+            this.refreshBlackboxJoiningDraw();
+        }
     }
 })
 export default class GameFinder extends Vue {
@@ -309,6 +299,19 @@ export default class GameFinder extends Vue {
 
     public lastActiveTimestamp: number = 0;
 
+    public rawBlackboxRoundHistory: {lastUpdated: number, rawRounds: any[]} = {lastUpdated: 0, rawRounds: []};
+    public blackboxJoiningDraw: {
+        displaySecondsUntilDraw: number,
+        previousRoundTimestamp: number | null,
+        drawnRoundTimestamp: number | null,
+        downloadJnlpId: number | null,
+    } = {
+        displaySecondsUntilDraw: 0,
+        previousRoundTimestamp: null,
+        drawnRoundTimestamp: null,
+        downloadJnlpId: null,
+    };
+
     public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
     public modalTeamSettingsTeam: any | null = null;
     public modalSettingsShow: boolean = false;
@@ -335,6 +338,8 @@ export default class GameFinder extends Vue {
         document.getElementById("gamefinder").addEventListener('click', this.updateLastActiveTimestamp);
 
         this.beginGetStatePolling();
+
+        this.refreshBlackboxRoundHistory();
     }
 
     public updateLastActiveTimestamp() {
@@ -359,8 +364,11 @@ export default class GameFinder extends Vue {
 
             const launchGameOfferTimedOut = this.launchGameOffer && this.launchGameOffer.timeRemaining <= 1000;
             const downloadJnlpOfferTimedOut = this.downloadJnlpOffer && this.downloadJnlpOffer.timeRemaining <= 1000;
+
             if (launchGameOfferTimedOut || downloadJnlpOfferTimedOut) {
                 this.allowRejoinAfterDownload = true;
+                enableGetStatePolling = false;
+            } else if (this.blackboxJoiningDraw.downloadJnlpId !== null) {
                 enableGetStatePolling = false;
             } else if (! this.isStatePollingAllowed()) {
                 this.stateUpdatesArePaused = true;
@@ -703,6 +711,9 @@ export default class GameFinder extends Vue {
     }
 
     public handleShowDialog(startDialogOffer: any | null): void {
+        if (this.isLockedForBlackboxDraw) {
+            return;
+        }
         if (startDialogOffer !== null) {
             this.closeModal();
         }
@@ -710,6 +721,9 @@ export default class GameFinder extends Vue {
     }
 
     public handleLaunchGame(launchGameOffer: any | null): void {
+        if (this.isLockedForBlackboxDraw) {
+            return;
+        }
         if (launchGameOffer !== null) {
             this.launchGameOffer = launchGameOffer;
             if (this.blackboxUserActivated) {
@@ -719,15 +733,28 @@ export default class GameFinder extends Vue {
     }
 
     public handleDownloadJnlp(downloadJnlpOffer: any | null): void {
+        if (this.isLockedForBlackboxDraw) {
+            return;
+        }
         if (downloadJnlpOffer !== null) {
             this.downloadJnlpOffer = downloadJnlpOffer;
         }
     }
 
     public handleSchedulingError(schedulingErrorMessage: string | null): void {
+        if (this.isLockedForBlackboxDraw) {
+            return;
+        }
         if (schedulingErrorMessage !== null) {
             this.schedulingErrorMessage = schedulingErrorMessage;
         }
+    }
+
+    public handleBlackboxDownloadJnlpId(blackboxDownloadJnlpId: number): void {
+        if (!this.isLockedForBlackboxDraw) {
+            return;
+        }
+        this.blackboxJoiningDraw.downloadJnlpId = blackboxDownloadJnlpId;
     }
 
     public declineGame()
@@ -838,8 +865,22 @@ export default class GameFinder extends Vue {
         this.downloadJnlpOffer = null;
         this.allowRejoinAfterDownload = false;
         this.schedulingErrorMessage = null;
+
+        this.blackboxReset();
+
         await this.activate();
         await this.getState();
+        this.stateUpdatesArePaused = false;
+    }
+
+    public blackboxReset() {
+        this.blackboxJoiningDraw = {
+            displaySecondsUntilDraw: 0,
+            previousRoundTimestamp: null,
+            drawnRoundTimestamp: null,
+            downloadJnlpId: null,
+        };
+        this.backendApi.blackboxDeactivate();
     }
 
     public get blackboxTeamCount(): number {
@@ -855,7 +896,65 @@ export default class GameFinder extends Vue {
     }
 
     public get isLockedForBlackboxDraw(): boolean {
-        return this.blackboxUserActivated && this.matchesAndTeamsState.blackbox.secondsRemaining <= 30;
+        return this.blackboxJoiningDraw.previousRoundTimestamp !== null;
+    }
+
+    public handleBlackboxActivation(): void {
+        this.backendApi.blackboxActivate();
+    }
+
+    public handleBlackboxDeactivation(): void {
+        this.blackboxReset();
+    }
+
+    public async refreshBlackboxRoundHistory() {
+        this.rawBlackboxRoundHistory = {
+            lastUpdated: Date.now(),
+            rawRounds: await this.backendApi.blackboxRoundHistory()
+        };
+    }
+
+    public get lastBlackboxRoundGameCount(): {round: string, count: number} {
+        if (this.rawBlackboxRoundHistory === null || this.rawBlackboxRoundHistory.rawRounds.length === 0) {
+            return {
+                round: '00:00',
+                count: 0,
+            };
+        }
+        let round = this.rawBlackboxRoundHistory.rawRounds[0].round;
+        round = round.slice(11, 16);
+        return {
+            round: round,
+            count: this.rawBlackboxRoundHistory.rawRounds[0].data.ScheduledMatches.length,
+        }
+    }
+
+    public refreshBlackboxJoiningDraw(): void {
+        if (
+            this.blackboxUserActivated
+            && this.blackboxJoiningDraw.previousRoundTimestamp === null
+            && this.matchesAndTeamsState.blackbox.status === 'Active'
+            && this.matchesAndTeamsState.blackbox.secondsRemaining <= 30
+        ) {
+            // the UI will now be locked for the blackbox draw
+            this.blackboxJoiningDraw.previousRoundTimestamp = this.rawBlackboxRoundHistory.lastUpdated;
+        } else if (
+            this.blackboxJoiningDraw.previousRoundTimestamp !== null
+            && this.blackboxJoiningDraw.drawnRoundTimestamp === null
+            && this.blackboxJoiningDraw.previousRoundTimestamp !== this.rawBlackboxRoundHistory.lastUpdated
+        ) {
+            // the results of the latest draw can now be shown
+            this.blackboxJoiningDraw.drawnRoundTimestamp = this.rawBlackboxRoundHistory.lastUpdated;
+        }
+
+        // update seconds remaining, but only if we're in the pre-draw (previous round)
+        if (this.blackboxJoiningDraw.previousRoundTimestamp === this.rawBlackboxRoundHistory.lastUpdated) {
+            if (this.matchesAndTeamsState.blackbox.status === 'Active' && this.matchesAndTeamsState.blackbox.secondsRemaining > 0) {
+                this.blackboxJoiningDraw.displaySecondsUntilDraw = this.matchesAndTeamsState.blackbox.secondsRemaining;
+            } else {
+                this.blackboxJoiningDraw.displaySecondsUntilDraw = 0;
+            }
+        }
     }
 
     public pluralise(quantity: number, singular: string, plural: string): string {
