@@ -1,6 +1,6 @@
 <template>
     <div class="blackboxjoiningdraw">
-        <div class="goodluck" v-if="downloadJnlpId !== null">
+        <div class="goodluck" v-if="isNewDraw && downloadJnlpId !== null">
             <strong>Good luck, your download should begin shortly.</strong> Your match is listed below in the latest Blackbox round.
             If your download fails to start automatically, you can <a :href="`https://fumbbl.com/ffblive.jnlp?id=${downloadJnlpId}`">start the download here</a>.
             <iframe :src="`https://fumbbl.com/ffblive.jnlp?id=${downloadJnlpId}`" height="0" width="0" />

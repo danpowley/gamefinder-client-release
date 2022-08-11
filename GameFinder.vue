@@ -120,7 +120,7 @@
                     :blackbox-team-count="blackboxTeamCount"
                     :blackbox="matchesAndTeamsState.blackbox"
                     :last-round-game-count="lastBlackboxRoundGameCount"
-                    :match-scheduled="this.blackboxJoiningDraw.downloadJnlpId !== null"
+                    :match-scheduled="this.blackboxJoiningDraw.drawnRoundTimestamp !== null && this.blackboxJoiningDraw.downloadJnlpId !== null"
                     @activated="handleBlackboxActivation"
                     @deactivated="handleBlackboxDeactivation"
                     @open-modal="openModal"></blackbox>
@@ -257,10 +257,6 @@ import { AxiosError } from "axios";
                 this.refreshBlackboxRoundHistory();
             }
         },
-        'matchesAndTeamsState.blackbox.secondsRemaining'() {
-            // @ts-ignore
-            this.refreshBlackboxJoiningDraw();
-        }
     }
 })
 export default class GameFinder extends Vue {
@@ -368,7 +364,7 @@ export default class GameFinder extends Vue {
             if (launchGameOfferTimedOut || downloadJnlpOfferTimedOut) {
                 this.allowRejoinAfterDownload = true;
                 enableGetStatePolling = false;
-            } else if (this.blackboxJoiningDraw.downloadJnlpId !== null) {
+            } else if (this.blackboxJoiningDraw.drawnRoundTimestamp !== null && this.blackboxJoiningDraw.downloadJnlpId !== null) {
                 enableGetStatePolling = false;
             } else if (! this.isStatePollingAllowed()) {
                 this.stateUpdatesArePaused = true;
@@ -500,6 +496,8 @@ export default class GameFinder extends Vue {
         if (this.blackboxUserActivated) {
             this.selectedOwnTeam = null;
         }
+
+        this.refreshBlackboxJoiningDraw();
     }
 
     public async showLfg() {
