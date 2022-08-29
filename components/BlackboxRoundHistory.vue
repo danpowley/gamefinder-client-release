@@ -42,7 +42,7 @@
                         </template>
                         <template v-else>
                             <div class="blackboxnomatches">
-                                No matches were able to me made in this draw.
+                                No matches were able to be made in this draw.
                             </div>
                         </template>
                     </div>

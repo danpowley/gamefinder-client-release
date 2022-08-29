@@ -30,3 +30,5 @@ export interface Blackbox {
   secondsRemaining: number,
   coachCount: number,
 };
+
+export type BlackboxDrawResult = 'SCHEDULED' | 'NOT_SCHEDULED' | 'PREVIOUSLY_SCHEDULED' | 'NOT_APPLICABLE';

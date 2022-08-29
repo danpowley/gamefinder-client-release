@@ -1,66 +1,84 @@
 <template>
     <div class="basicbox" v-if="blackbox !== null">
         <div class="header blackboxheader">Blackbox<span class="blackboxstatus">{{ blackbox.status }}</span></div>
-        <div v-if="matchScheduled" class="content">
-            Match scheduled.
-        </div>
-        <div v-else class="content" id="blackboxwrapper">
+        <div class="content" id="blackboxwrapper">
             <a href="#" @click.prevent="openModal('BLACKBOX_ROUNDS')" class="blackboxrounds">{{ lastRoundGameCount.count }} {{ pluralise(lastRoundGameCount.count, 'match', 'matches') }} at {{ lastRoundGameCount.round }}</a>
-            <div v-if="blackbox.status === 'Pending'" class="blackboxpaused">
-                Draw taking place.
-            </div>
-            <div v-else-if="blackbox.status === 'Paused'" class="blackboxpaused">
-                <div class="blackboxtop">
-                    Blackbox is paused
+            <template v-if="blackboxDrawResult === 'NOT_APPLICABLE'">
+                <div v-if="blackbox.status === 'Pending'" class="blackboxpaused">
+                    Draw taking place.
                 </div>
-                <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.pauseDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.pauseDuration) + '%'}"></div></div>
-                <div class="blackboxbottom">
-                    <template v-if="timeRemainingDisplay">
-                        Active in {{ timeRemainingDisplay }}
-                    </template>
-                    <template v-else>
-                        Please wait...
-                    </template>
-                </div>
-            </div>
-            <div v-else-if="blackbox.status === 'Active'" class="blackboxactive">
-                <div class="blackboxtop">
-                    {{ blackbox.coachCount }} {{ pluralise(blackbox.coachCount, 'coach', 'coaches') }} activated
-                </div>
-                <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.activeDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.activeDuration) + '%'}"></div></div>
-                <div class="blackboxbottom">
-                    <div class="timeremaining">
+                <div v-else-if="blackbox.status === 'Paused'" class="blackboxpaused">
+                    <div class="blackboxtop">
+                        Blackbox is paused
+                    </div>
+                    <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.pauseDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.pauseDuration) + '%'}"></div></div>
+                    <div class="blackboxbottom">
                         <template v-if="timeRemainingDisplay">
-                            Draw in {{ timeRemainingDisplay }}
+                            Active in {{ timeRemainingDisplay }}
                         </template>
                         <template v-else>
                             Please wait...
                         </template>
                     </div>
-                    <div class="activationcontrolsouter">
-                        <div class="activationcontrolsinner" v-if="blackboxTeamCount > 0">
-                            <div v-if="!pleaseWait">
-                                <button v-if="userActivated" @click="handleDeactivation">Leave the Draw</button>
-                                <button v-if="!userActivated" @click="handleActivation">Join the Draw</button>
-                            </div>
-                            <div v-else>
-                                Please wait {{ pleaseWait }}
-                            </div>
-                        </div>
-                        <div v-else>
-                            <template v-if="userActivated">
-                                <strong>0 teams:</strong> 'Choose teams' or <a href="#" @click.prevent="handleDeactivation">leave draw</a>.
+                </div>
+                <div v-else-if="blackbox.status === 'Active'" class="blackboxactive">
+                    <div class="blackboxtop">
+                        {{ blackbox.coachCount }} {{ pluralise(blackbox.coachCount, 'coach', 'coaches') }} activated
+                    </div>
+                    <div class="timerwrapper"><div class="timer" :style="{ width: (100 * blackbox.secondsRemaining / config.activeDuration) + '%', left: (50 - 50 * blackbox.secondsRemaining / config.activeDuration) + '%'}"></div></div>
+                    <div class="blackboxbottom">
+                        <div class="timeremaining">
+                            <template v-if="timeRemainingDisplay">
+                                Draw in {{ timeRemainingDisplay }}
                             </template>
                             <template v-else>
-                                Use 'Choose teams' to select valid teams.
+                                Please wait...
                             </template>
+                        </div>
+                        <div class="activationcontrolsouter">
+                            <div class="activationcontrolsinner" v-if="blackboxTeamCount > 0">
+                                <div v-if="!pleaseWait">
+                                    <button v-if="userActivated" @click="handleDeactivation">Leave the Draw</button>
+                                    <button v-if="!userActivated" @click="handleActivation">Join the Draw</button>
+                                </div>
+                                <div v-else>
+                                    Please wait {{ pleaseWait }}
+                                </div>
+                            </div>
+                            <div v-else>
+                                <template v-if="userActivated">
+                                    <strong>0 teams:</strong> 'Choose teams' or <a href="#" @click.prevent="handleDeactivation">leave draw</a>.
+                                </template>
+                                <template v-else>
+                                    Use 'Choose teams' to select valid teams.
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div v-else class="blackboxpaused">
-                Blackbox is currently offline.
-            </div>
+                <div v-else class="blackboxpaused">
+                    Blackbox is currently offline.
+                </div>
+            </template>
+            <template v-else>
+                <div class="drawresult">
+                    <div class="drawresultinfo">
+                        <template v-if="blackboxDrawResult === 'SCHEDULED'">
+                            <div>Match scheduled.</div>
+                            <div><a @click.prevent="handleDrawResultDismiss" href="#">View next draw</a></div>
+                        </template>
+                        <template v-else-if="blackboxDrawResult === 'NOT_SCHEDULED'">
+                            <div>Sorry, no match scheduled.</div>
+                            <div><a @click.prevent="handleDrawResultDismiss" href="#">View next draw</a></div>
+                        </template>
+                        <template v-else-if="blackboxDrawResult === 'PREVIOUSLY_SCHEDULED'">
+                            <div>PLEASE NOTE: Match scheduled.</div>
+                            <div>Check home page for Resume link.</div>
+                            <div><a @click.prevent="handleDrawResultDismiss" href="#">Ignore warning</a></div>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
         <div class="blackboxtrophy">
             <a href="/p/boxtrophy">Blackbox Trophy</a>
@@ -91,8 +109,8 @@ import { BlackboxConfig } from "../include/Interfaces";
                 return typeof lastRoundGameCount === 'object';
             }
         },
-        matchScheduled: {
-            type: Boolean,
+        blackboxDrawResult: {
+            type: String,
             required: true,
         },
         isDevMode: {
@@ -146,6 +164,10 @@ export default class BlackboxComponent extends Vue {
 
     public openModal(name: string, modalSettings: any) {
         this.$emit('open-modal', name, modalSettings);
+    }
+
+    public handleDrawResultDismiss() {
+        this.$emit('blackbox-draw-result-dismiss');
     }
 }
 </script>

@@ -120,10 +120,11 @@
                     :blackbox-team-count="blackboxTeamCount"
                     :blackbox="matchesAndTeamsState.blackbox"
                     :last-round-game-count="lastBlackboxRoundGameCount"
-                    :match-scheduled="this.blackboxJoiningDraw.drawnRoundTimestamp !== null && this.blackboxJoiningDraw.downloadJnlpId !== null"
+                    :blackbox-draw-result="blackboxDrawResult"
                     @activated="handleBlackboxActivation"
                     @deactivated="handleBlackboxDeactivation"
-                    @open-modal="openModal"></blackbox>
+                    @open-modal="openModal"
+                    @blackbox-draw-result-dismiss="continueAfterLaunch"></blackbox>
 
                 <offers
                     :is-dev-mode="isDevMode"
@@ -231,7 +232,7 @@ import BlackboxJoiningDrawComponent from "./components/BlackboxJoiningDraw.vue";
 import BlackboxRoundHistoryModalComponent from "./components/BlackboxRoundHistoryModal.vue";
 import IBackendApi from "./include/IBackendApi";
 import GameFinderHelpers from "./include/GameFinderHelpers";
-import { Blackbox, Coach, UserSettings } from "./include/Interfaces";
+import { Blackbox, BlackboxDrawResult, Coach, UserSettings } from "./include/Interfaces";
 import { AxiosError } from "axios";
 
 @Component({
@@ -307,6 +308,7 @@ export default class GameFinder extends Vue {
         drawnRoundTimestamp: null,
         downloadJnlpId: null,
     };
+    public blackboxMatchPreviouslyScheduled: boolean = false;
 
     public modalRosterSettings: {isMyTeam: boolean, displayTeam: any, ownTeamsOfferable: any[]} | null = null;
     public modalTeamSettingsTeam: any | null = null;
@@ -335,7 +337,9 @@ export default class GameFinder extends Vue {
 
         this.beginGetStatePolling();
 
-        this.refreshBlackboxRoundHistory();
+        await this.refreshBlackboxRoundHistory();
+
+        this.blackboxMatchPreviouslyScheduled = this.getBlackboxJnlpIdFromLatestDraw() ? true : false;
     }
 
     public updateLastActiveTimestamp() {
@@ -878,6 +882,7 @@ export default class GameFinder extends Vue {
             drawnRoundTimestamp: null,
             downloadJnlpId: null,
         };
+        this.blackboxMatchPreviouslyScheduled = false;
         this.backendApi.blackboxDeactivate();
     }
 
@@ -953,6 +958,41 @@ export default class GameFinder extends Vue {
                 this.blackboxJoiningDraw.displaySecondsUntilDraw = 0;
             }
         }
+    }
+
+    public get blackboxDrawResult(): BlackboxDrawResult {
+        if (this.blackboxJoiningDraw.drawnRoundTimestamp !== null && this.blackboxJoiningDraw.downloadJnlpId !== null) {
+            return 'SCHEDULED';
+        } else if (this.blackboxJoiningDraw.drawnRoundTimestamp !== null) {
+            return 'NOT_SCHEDULED';
+        } else if (this.blackboxMatchPreviouslyScheduled) {
+            return 'PREVIOUSLY_SCHEDULED';
+        } else {
+            return 'NOT_APPLICABLE';
+        }
+    }
+
+    public getBlackboxJnlpIdFromLatestDraw(): number | null {
+        if (this.rawBlackboxRoundHistory === null || this.rawBlackboxRoundHistory.rawRounds.length === 0) {
+            return null;
+        }
+        const rawLatestRound = this.rawBlackboxRoundHistory.rawRounds[0];
+        let coachTeamIdsLookup = [];
+        for (const coach of rawLatestRound.teamData) {
+            if (coach.coach === this.coachName) {
+                coachTeamIdsLookup = Object.keys(coach.teams).map((teamId) => parseInt(teamId) );
+                break;
+            }
+        }
+        for (const scheduledMatch of rawLatestRound.data.ScheduledMatches) {
+            if (coachTeamIdsLookup.includes(scheduledMatch.Team1.TeamId)) {
+                return scheduledMatch.Team1.TeamId;
+            }
+            if (coachTeamIdsLookup.includes(scheduledMatch.Team2.TeamId)) {
+                return scheduledMatch.Team2.TeamId;
+            }
+        }
+        return null;
     }
 
     public pluralise(quantity: number, singular: string, plural: string): string {
