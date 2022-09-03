@@ -10,13 +10,16 @@
                     <input type="checkbox" id="selectallteamsbegin" class="selectallteams" @change="toggleAll"/>
                     <label for="selectallteamsbegin">Select All</label>
                 </div>
-                <div>
+                <div class="activate">
                     <template v-if="activateTeamsButtonClicked">
                         Please wait, teams activating.
                     </template>
                     <template v-else>
                         <input type="button" value="Activate teams" @click="showLfg" />
                     </template>
+                </div>
+                <div class="changemodes">
+                    <a href="#" @click.prevent="toggleChangeModes">{{ changeModeEnabled ? 'End mode changes' : 'Change modes' }}</a>
                 </div>
             </div>
             <div class="lfglist">
@@ -33,15 +36,19 @@
                                     <div class="teamname">{{ team.name }}</div>
                                     <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
                                     <div class="teammode" v-if="team.division === 'Competitive'">
-                                        <div class="mode" title="Competitive division mode: Mixed / Strict / Open">
-                                            {{ team.lfgMode }}
+                                        <div class="mode" title="Competitive division mode: Gamefinder, Blackbox or both">
+                                            <template v-if="changeModeEnabled && team.modeLock !== true">
+                                                <select @change="changeMode(team, $event)">
+                                                    <option v-for="mode in ['Strict', 'Mixed', 'Open']" :key="mode" :value="mode" :selected="team.lfgMode === mode ? 'selected' : ''">{{ displayLfgMode(mode) }}</option>
+                                                </select>
+                                            </template>
+                                            <template v-else>
+                                                {{ displayLfgMode(team.lfgMode) }}
+                                                <template v-if="team.modeLock === true">
+                                                    <span class="modelocked"> 🔒</span>
+                                                </template>
+                                            </template>
                                         </div>
-                                        <template v-if="team.modeLock === true">
-                                            <span class="modelocked">Mode locked</span>
-                                        </template>
-                                        <template v-else>
-                                            <a href="#" @click.prevent="openModal('TEAM_SETTINGS', {team: team})">Change mode</a>
-                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -76,6 +83,7 @@ import Component from 'vue-class-component';
 import GameFinderPolicies from '../include/GameFinderPolicies';
 import GameFinderHelpers from '../include/GameFinderHelpers';
 import IBackendApi from "../include/IBackendApi";
+import { LfgModeApi, LfgModeUi } from "../include/Interfaces";
 
 @Component({
     props: {  
@@ -99,6 +107,7 @@ export default class LfgTeamsComponent extends Vue {
     public teamsByDivision: any[] = [];
     public checked: boolean[] = [];
     public activateTeamsButtonClicked: boolean = false;
+    public changeModeEnabled: boolean = false;
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
@@ -219,6 +228,33 @@ export default class LfgTeamsComponent extends Vue {
 
     public openModal(name: string, modalSettings: any) {
         this.$emit('open-modal', name, modalSettings);
+    }
+
+    public displayLfgMode(lfgMode: LfgModeApi): LfgModeUi {
+        switch (lfgMode) {
+            case 'Strict':
+                return 'Blackbox only';
+            case 'Mixed':
+                return 'Gamefinder or Blackbox';
+            case 'Open':
+                return 'Gamefinder only';
+            default:
+                throw Error('Invalid lfg mode ' + lfgMode);
+        }
+    }
+
+    public toggleChangeModes(): void {
+        this.changeModeEnabled = ! this.changeModeEnabled;
+    }
+
+    public changeMode(team: any, event): void {
+        const newLfgMode: LfgModeApi = event.target.value;
+
+        // update the team property to instantly update the UI:
+        team.lfgMode = newLfgMode;
+
+        // save via API
+        this.backendApi.changeLfgMode(team.id, newLfgMode);
     }
 }
 </script>

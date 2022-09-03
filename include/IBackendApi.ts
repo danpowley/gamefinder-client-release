@@ -1,4 +1,4 @@
-import { BlackboxConfig, GameFinderVar, LfgMode, UserSettings } from "./Interfaces";
+import { BlackboxConfig, GameFinderVar, LfgModeApi, UserSettings } from "./Interfaces";
 
 export default interface IBackendApi {
     isAxiosError(error: Error): boolean;
@@ -35,7 +35,7 @@ export default interface IBackendApi {
 
     unhideCoach(coachName: string): Promise<void>;
 
-    changeLfgMode(teamId: number, lfgMode: LfgMode);
+    changeLfgMode(teamId: number, lfgMode: LfgModeApi);
 
     blackboxConfig(): Promise<BlackboxConfig>;
 

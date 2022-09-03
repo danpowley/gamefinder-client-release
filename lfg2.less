@@ -181,10 +181,8 @@
       }
 
       .controls {
-        padding: 0 10px 0 6px;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
+        padding: 10px;
+        display: flex;
         background: @OldLace;
         height: 45px;
         border-bottom: solid @Forest 1px;
@@ -194,12 +192,22 @@
         z-index: 2;
 
         .selectall {
+          width: 150px;
+
           input[type=checkbox] {
             margin-right: 10px;
           }
           label {
             font-size: 11pt;
           }
+        }
+        .activate {
+          text-align: center;
+          flex-grow: 1;
+        }
+        .changemodes {
+          width: 150px;
+          text-align: right;
         }
       }
     }
@@ -730,12 +738,9 @@
     padding: 6px;
     min-height: 600px;
 
-    .frozentag {
-      background-color: @Quicksilver;
-      color: white;
+    .opponentspausedinfo {
+      color: @Quicksilver;
       font-size: 8pt;
-      padding: 3px 4px 2px 4px;
-      border-radius: 3px;
     }
 
     .hiddencoachcount {

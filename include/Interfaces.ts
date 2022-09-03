@@ -15,7 +15,8 @@ export interface UserSettings {
 // e.g. = 'gamefinder.var1' | 'gamefinder.var2' | 'gamefinder.var3'
 export type GameFinderVar = 'gamefinder.enableSound' | 'gamefinder.zenMode' | 'gamefinder.showUnofferableTeams';
 
-export type LfgMode = 'Strict' | 'Mixed' | 'Open';
+export type LfgModeApi = 'Strict' | 'Mixed' | 'Open';
+export type LfgModeUi = 'Blackbox only' | 'Gamefinder or Blackbox' | 'Gamefinder only';
 
 export type BlackboxStatus = 'Paused' | 'Active' | 'Pending' | 'Offline';
 

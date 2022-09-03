@@ -2,12 +2,12 @@
     <div id="opponentslist" @mouseenter="setUiUpdatesPaused(true)" @mouseleave="setUiUpdatesPaused(false)" :class="{fadeout: fadeOut}">
         <div class="expandcollapseall" v-show="visibleOpponents.length > 0"><a href="#" @click.prevent="expandAllOpponents()">Expand</a> <a href="#" @click.prevent="collapseAllOpponents()">Collapse</a></div>
         <div>
-            <strong>{{ isOwnTeamSelected ? 'Opponents filtered by selected team.' : 'Opponents' }}</strong>
+            <strong>{{ isOwnTeamSelected ? 'Opponents filtered by selected team' : 'Opponents' }}</strong>
             <span
                 v-show="uiUpdatesPaused"
-                class="frozentag"
+                class="opponentspausedinfo"
                 title="New opponents won't be added/removed until you move your mouse away from this area. This is to prevent the page moving whilst you browse opponents."
-                >Frozen</span>
+                > (paused for mouse hover)</span>
         </div>
         <div v-show="visibleOpponents.length === 0">No opponents available.</div>
         <div v-for="opponent in visibleOpponents" :key="opponent.id" class="opponent">

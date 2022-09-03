@@ -1,6 +1,6 @@
 import Axios from "axios";
 import IBackendApi from "./IBackendApi";
-import { BlackboxConfig, Coach, GameFinderVar, LfgMode, UserSettings } from "./Interfaces";
+import { BlackboxConfig, Coach, GameFinderVar, LfgModeApi, UserSettings } from "./Interfaces";
 
 export default class DummyApi implements IBackendApi {
     readonly dummyApiDomain = 'http://localhost:3000';
@@ -104,7 +104,7 @@ export default class DummyApi implements IBackendApi {
         await Axios.post(this.getFullApiEndPointUrl('/api/coach/unhide/' + coachName));
     }
 
-    public async changeLfgMode(teamId: number, lfgMode: LfgMode): Promise<void> {
+    public async changeLfgMode(teamId: number, lfgMode: LfgModeApi): Promise<void> {
         // IMPORTANT: this is posting to the proxy using a JSON body, real FUMBBL expects form data body
         // Couldn't get form data body to work with the proxy server, so doing this instead.
         // FumbblApi class uses a FormData object for the request body.
