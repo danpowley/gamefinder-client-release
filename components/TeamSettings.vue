@@ -37,9 +37,6 @@ import IBackendApi from "../include/IBackendApi";
 })
 export default class TeamSettingsComponent extends Vue {
     private backendApi: IBackendApi | null = null;
-    public showTeamModeChoices: boolean = false;
-    public showModeChoiceError: boolean = false;
-    public useSectionClasses: boolean = false; // when more than 1 section, remove this so sections can be distinguised by CSS class
 
     async mounted() {
         this.backendApi = GameFinderHelpers.getBackendApi(this.$props.isDevMode);
