@@ -562,7 +562,7 @@ export default class GameFinder extends Vue {
                 team.hasUnreadItems = false;
                 continue;
             }
-            if (team.allow.length === 0) {
+            if (!Array.isArray(team.allow) || team.allow.length === 0) {
                 team.hasUnreadItems = false;
                 continue;
             }
