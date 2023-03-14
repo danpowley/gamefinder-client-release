@@ -13,7 +13,7 @@
                         </div>
                         <div class="info">
                             <div>
-                                <span title="Current Team Value (CTV) / Team Value (TV)">{{ rosterData.currentTeamValue/1000 }}k / {{ rosterData.teamValue/1000 }}k</span> {{ rosterData.roster.name }}
+                                <span title="Current Team Value (CTV)">{{ rosterData.currentTeamValue/1000 }}k</span> {{ rosterData.roster.name }}
                             </div>
                             <div class="subinfo">
                                 <span class="rosterfact" title="Seasons and games played.">S{{ settings.displayTeam.seasonInfo.currentSeason }}:G{{ settings.displayTeam.seasonInfo.gamesPlayedInCurrentSeason }}</span>
