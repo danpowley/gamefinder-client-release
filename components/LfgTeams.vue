@@ -34,7 +34,7 @@
                                 <img :src="getTeamLogoUrl(team)" />
                                 <div class="teamdetails">
                                     <div class="teamname">{{ team.name }}</div>
-                                    <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.teamValue/1000 }}k {{ team.roster.name }}</div>
+                                    <div class="teaminfo"><span title="Seasons and games played">S{{ team.seasonInfo.currentSeason }}:G{{ team.seasonInfo.gamesPlayedInCurrentSeason }}</span> TV {{ team.currentTeamValue/1000 }}k {{ team.roster.name }}</div>
                                     <div class="teammode" v-if="team.division === 'Competitive'">
                                         <div class="mode" title="Competitive division mode: Gamefinder, Blackbox or both">
                                             <template v-if="changeModeEnabled && team.modeLock !== true">
